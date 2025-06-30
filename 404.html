@@ -4,7 +4,7 @@
     // 检查用户是否已经选择
     if (!localStorage.getItem('cookieConsent')) {
       // 显示弹窗提示
-      const consent = window.confirm("您是否同意我们使用 Google Analysis 来改善您的体验？");
+      const consent = window.confirm("您是否同意我们使用 Google Analytics 来改善您的体验？");
 
       if (consent) {
         localStorage.setItem('cookieConsent', 'true');
