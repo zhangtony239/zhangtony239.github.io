@@ -1,37 +1,6 @@
 <!DOCTYPE html><html lang="zh-cn"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>All tags - AstraLog</title><meta name="robots" content="noindex, follow"><meta name="generator" content="Publii Open-Source CMS for Static Site"><link rel="stylesheet" href="./../assets/css/style.css?v=aeab15676f0a96b3ca1d8bcdd1add4e6"><script type="application/ld+json">{"@context":"http://schema.org","@type":"Organization","name":"AstraLog","url":"./../"}</script><noscript><style>img[loading] {
                     opacity: 1;
-                }</style></noscript><script>window.onload = function() {
-    // 检查用户是否已经选择
-    if (!localStorage.getItem('cookieConsent')) {
-      // 显示弹窗提示
-      const consent = window.confirm("您是否同意我们使用 Google Analytics 来改善您的体验？");
-
-      if (consent) {
-        localStorage.setItem('cookieConsent', 'true');
-        loadGtag();  // 用户同意，加载gtag.js
-      } else {
-        localStorage.setItem('cookieConsent', 'false');
-      }
-    } else if (localStorage.getItem('cookieConsent') === 'true') {
-      // 如果用户已同意，直接加载gtag.js
-      loadGtag();
-    }
-  };
-
-  function loadGtag() {
-    // 仅在用户同意后加载Google Analytics脚本
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = "https://www.googletagmanager.com/gtag/js?id=G-5GVYWZCMT3";
-    document.head.appendChild(script);
-
-    script.onload = function() {
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-5GVYWZCMT3');
-    };
-  }</script></head><body class="tags-template"><header class="top js-header"><a class="logo" href="./../">AstraLog</a><div class="search"><div class="search__overlay js-search-overlay"><div class="wrapper search__overlay-inner"></div></div><button class="search__btn btn--icon js-search-btn" aria-label="Search"><svg height="18" width="18" role="presentation" focusable="false"><use xlink:href="./../assets/svg/svg-map.svg#search"/></svg></button></div></header><main class="page page--tags"><div class="hero hero--noimage"><header class="hero__content"><div class="wrapper"><h1>Tags</h1><p class="page__desc">Collection of all 0 tags</p></div></header></div><div class="wrapper"><ul class="feed feed--grid"></ul></div></main><footer class="footer"><div class="wrapper"><div class="footer__copyright"><p>Powered by Publii</p></div><button id="backToTop" class="footer__bttop" aria-label="Back to top" title="Back to top"><svg width="20" height="20"><use xlink:href="./../assets/svg/svg-map.svg#toparrow"/></svg></button></div></footer><script defer="defer" src="./../assets/js/scripts.min.js?v=700105c316933a8202041b6415abb233"></script><script>window.publiiThemeMenuConfig={mobileMenuMode:'overlay',animationSpeed:300,submenuWidth: 'auto',doubleClickTime:500,mobileMenuExpandableSubmenus:true,relatedContainerForOverlayMenuSelector:'.top'};</script><script>var images = document.querySelectorAll('img[loading]');
+                }</style></noscript></head><body class="tags-template"><header class="top js-header"><a class="logo" href="./../">AstraLog</a><div class="search"><div class="search__overlay js-search-overlay"><div class="wrapper search__overlay-inner"></div></div><button class="search__btn btn--icon js-search-btn" aria-label="Search"><svg height="18" width="18" role="presentation" focusable="false"><use xlink:href="./../assets/svg/svg-map.svg#search"/></svg></button></div></header><main class="page page--tags"><div class="hero hero--noimage"><header class="hero__content"><div class="wrapper"><h1>Tags</h1><p class="page__desc">Collection of all 0 tags</p></div></header></div><div class="wrapper"><ul class="feed feed--grid"></ul></div></main><footer class="footer"><div class="wrapper"><div class="footer__copyright"><p>Powered by Publii</p></div><button id="backToTop" class="footer__bttop" aria-label="Back to top" title="Back to top"><svg width="20" height="20"><use xlink:href="./../assets/svg/svg-map.svg#toparrow"/></svg></button></div></footer><script defer="defer" src="./../assets/js/scripts.min.js?v=700105c316933a8202041b6415abb233"></script><script>window.publiiThemeMenuConfig={mobileMenuMode:'overlay',animationSpeed:300,submenuWidth: 'auto',doubleClickTime:500,mobileMenuExpandableSubmenus:true,relatedContainerForOverlayMenuSelector:'.top'};</script><script>var images = document.querySelectorAll('img[loading]');
         for (var i = 0; i < images.length; i++) {
             if (images[i].complete) {
                 images[i].classList.add('is-loaded');
