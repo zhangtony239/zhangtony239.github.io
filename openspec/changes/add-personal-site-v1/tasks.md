@@ -43,12 +43,16 @@
 - [ ] 6.3 创建 `src/pages/essays/[...slug].astro`，用 `getStaticPaths` 复用 `getPublishedEssays()`；验证：每篇已发布随笔有可访问 URL，草稿 URL 返回 404
 - [ ] 6.4 创建 `src/layouts/ArticleLayout.astro`：`max-width: 62ch` 单列、正文 `--ink-2`、`line-height: 1.85`、段落间距可见、正文之上只有标题与日期；验证：打开一篇长文，量得行宽约 62ch 且顶部无标签/作者/翻页元素
 - [ ] 6.5 建立文章页文档标题与标题一致性；验证：浏览器标签页标题包含该文标题
+- [ ] 6.6 实现 Markdown 结构元素样式：`h2`/`h3` 层级（正文从 h2 起、不自动加序号）、引用块（左侧 1px `--line` 线 + 略大字号 + `--ink`）、有序/无序列表（弱色标记）、行内代码（等宽 + 浅底）、`strong`/`em`；验证：用一段同时含这六类元素的测试正文对照，无浏览器默认蓝、无默认表格边框、无双编号
+- [ ] 6.7 实现表格样式与破栏：表格可宽至 `min(92ch, 100vw - 48px)`，外层容器 `overflow-x: auto`，单元格内边距与表头弱色；验证：在 1440px 与 375px 下页面均无横向滚动条，窄屏时表格自身可横向滚动
 
 ## 7. p/acc 宣言页
 
-- [ ] 7.1 创建 `src/manifesto/p-acc.md`（含宣言正文与 date frontmatter）与 `src/pages/p/acc.astro`，后者导入 Markdown 的 `Content`、`frontmatter` 并套 `ArticleLayout`；验证：访问 `/p/acc` 渲染成功，版式与任意随笔完全一致
-- [ ] 7.2 确认宣言不在归档与聚合输出中、且不存在别名路径；验证：`/essays` 列表中无该条，构建产物中指向宣言的链接只有 `/p/acc`
-- [ ] 7.3 确认导航 `p/acc` 条目文案为 `p/acc` 且指向 `/p/acc`；验证：从任意页面点击该条目进入宣言页
+- [ ] 7.1 从 `C:\Users\Tony\Downloads\p-acc-manifesto.md` 导入正文到 `src/manifesto/p-acc.md`：保留正文原样、删除开头那一行 `# p/acc — Paired Accelerationism Manifesto`（`h1` 由模板独占）、补 `title: p/acc` 与 `date` frontmatter；验证：`/p/acc` 页面上只有一个 `h1`，且 Downloads 中的源文件未被修改
+- [ ] 7.2 创建 `src/pages/p/acc.astro`，导入 Markdown 的 `Content`、`frontmatter` 并套 `ArticleLayout`；验证：访问 `/p/acc` 渲染成功，版式与任意随笔完全一致
+- [ ] 7.3 逐项核对宣言的全部结构元素在页面上完整呈现、无内容丢失：5 个二级标题、6 个三级标题、四列对照表格、开篇引用块、一个 3 项无序列表、一个 4 项有序列表、1 处行内代码；验证：与源文件逐段对比，段落数一致
+- [ ] 7.4 确认宣言不在归档与聚合输出中、且不存在别名路径；验证：`/essays` 列表中无该条，构建产物中指向宣言的链接只有 `/p/acc`
+- [ ] 7.5 确认导航 `p/acc` 条目文案为 `p/acc` 且指向 `/p/acc`；验证：从任意页面点击该条目进入宣言页
 
 ## 8. 发布到 GitHub Pages
 

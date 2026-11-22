@@ -38,7 +38,7 @@
 - 新增代码结构：`package.json`、`astro.config.mjs`、`tsconfig.json`、`src/layouts/`、`src/pages/`、`src/content/`、`src/styles/`、`public/`。
 - 新增发布配置：`.github/workflows/deploy.yml`（bun + `actions/deploy-pages`）。
 - 新增依赖：`astro`。不引入 React/Vue 等框架集成，组件只用 `.astro`。
-- 内容来源：`src/content/` 下的 Markdown 文件；`p/acc` 与随笔共用一个内容集合，通过固定 slug 路由。
+- 内容来源：随笔为 `src/content/essays/` 下的 Markdown 文件；`p/acc` 正文已由作者准备（源文件 `p-acc-manifesto.md`，含表格与多级标题），作为独立 Markdown 导入、由固定路由渲染，不进入内容集合。
 - 现有文件影响：`demo.html` 保留为视觉基准对照，不参与构建、不被 Astro 路由收录。
 - 外部依赖：Google Fonts（`Google Sans Flex`）通过 `<link>` 引入，是本方案唯一的第三方运行时资源；需接受其可用性与首屏字体加载成本。
 - 部署站点：`https://zhangtony239.github.io/`，用户 Pages 根路径，`base` 保持 `/`。
