@@ -1,5 +1,5 @@
 ---
-title: p/acc
+title: 什么是 p/acc 主义？
 date: 2026-11-22
 ---
 
@@ -97,5 +97,3 @@ p/acc 不反对安全，我们反对把“安全”当成大词，用来掩盖�
 *If you are tired of hypocritical safety theater and hollow compute bubbles—welcome home.*
 
 **Accelerate for our foundational love.**
-
-`Licensed under CC BY 4.0 | Airki & p/acc Community`

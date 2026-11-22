@@ -3,7 +3,11 @@ const current = Astro.url.pathname.replace(/\/+$/, '') || '/';
 
 const items = [
   { label: '首页', href: '/', isCurrent: current === '/' },
-  { label: 'p/acc', href: '/p/acc', isCurrent: current === '/p/acc' },
+  {
+    label: 'p/acc',
+    href: '/what-is-p-acc',
+    isCurrent: current === '/what-is-p-acc',
+  },
   {
     label: '随笔',
     href: '/essays',
