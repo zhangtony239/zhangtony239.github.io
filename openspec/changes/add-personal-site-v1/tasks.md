@@ -2,7 +2,7 @@
 
 ## 1. 项目骨架与构建
 
-- [ ] 1.1 创建 `package.json`（`type: module`、`dev/build/preview` 脚本）并用 bun 添加 `astro` 依赖；验证：`bun install` 成功，`bunx astro --version` 输出版本号
+- [x] 1.1 创建 `package.json`（`type: module`、`dev/build/preview` 脚本）并用 bun 添加 `astro` 依赖；验证：`bun install` 成功，`bunx astro --version` 输出版本号
 - [ ] 1.2 创建 `astro.config.mjs`，设置 `site: 'https://zhangtony239.github.io'`、`base: '/'`，不加任何 integration；验证：配合一个占位 `src/pages/index.astro`，`bun run build` 成功产出 `dist/index.html`
 - [ ] 1.3 创建 `tsconfig.json` 继承 `astro/tsconfigs/strict`；验证：编辑器对 `Astro` 全局类型不再报错，`bun run build` 仍通过
 - [ ] 1.4 创建 `.gitignore`（`node_modules/`、`dist/`、`.astro/`、`.env`）；验证：`git status` 中不出现这些目录
