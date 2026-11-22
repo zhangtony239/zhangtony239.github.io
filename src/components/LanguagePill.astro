@@ -56,17 +56,47 @@ const entries = LOCALES.map((item) => ({
 </div>
 
 <script is:inline>
-  document.addEventListener('click', function (event) {
-    var target = event.target;
-    var link = target instanceof Element ? target.closest('[data-locale-link]') : null;
-    if (!link) return;
-
-    try {
-      window.localStorage.setItem('locale', link.getAttribute('data-locale-link') || '');
-    } catch (error) {
-      /* 本地存储不可用时静默失败：链接照常导航，只是不记住偏好。 */
+  (function () {
+    function openMenu() {
+      return document.querySelector('.lang-compact[open]');
     }
-  });
+
+    function closeMenu(menu) {
+      if (!menu) return;
+      menu.open = false;
+    }
+
+    document.addEventListener('click', function (event) {
+      var target = event.target;
+      var menu = openMenu();
+
+      /* 点菜单内部（含语言条目）交给浏览器处理；点别处收起。 */
+      if (menu && target instanceof Node && !menu.contains(target)) {
+        closeMenu(menu);
+      }
+
+      var link = target instanceof Element ? target.closest('[data-locale-link]') : null;
+      if (!link) return;
+
+      try {
+        window.localStorage.setItem('locale', link.getAttribute('data-locale-link') || '');
+      } catch (error) {
+        /* 本地存储不可用时静默失败：链接照常导航，只是不记住偏好。 */
+      }
+    });
+
+    /* Esc 收起并把焦点还给按钮，保持键盘可达。 */
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') return;
+
+      var menu = openMenu();
+      if (!menu) return;
+
+      closeMenu(menu);
+      var summary = menu.querySelector('summary');
+      if (summary instanceof HTMLElement) summary.focus();
+    });
+  })();
 </script>
 
 <style>
@@ -92,11 +122,10 @@ const entries = LOCALES.map((item) => ({
     padding: 0;
     border: 1px solid var(--line);
     border-radius: 999px;
-    background: var(--glass);
-    -webkit-backdrop-filter: blur(20px) saturate(1.7);
-    backdrop-filter: blur(20px) saturate(1.7);
+    /* 小圆不用背景模糊，也不用 inset 白高光：模糊层在圆形边缘会留下 1px 合成接缝，
+       白高光叠在强调色填充上就是一整圈月牙。 */
+    background: var(--bg);
     box-shadow:
-      inset 0 1px 0 var(--glass-hi),
       0 1px 3px var(--shadow-soft),
       0 10px 30px var(--shadow-soft);
     font-size: 13.5px;
@@ -118,7 +147,8 @@ const entries = LOCALES.map((item) => ({
 
   .lang-compact[open] summary {
     color: var(--ink);
-    background: var(--accent-current);
+    background: var(--hover-fill);
+    box-shadow: 0 1px 3px var(--shadow-soft);
   }
 
   /* 中日文字形的基线偏移在 flex 居中下最稳；西文短码用同一盒模型居中。 */
@@ -140,11 +170,9 @@ const entries = LOCALES.map((item) => ({
     list-style: none;
     border: 1px solid var(--line);
     border-radius: 18px;
-    background: var(--glass);
-    -webkit-backdrop-filter: blur(20px) saturate(1.7);
-    backdrop-filter: blur(20px) saturate(1.7);
+    /* 面板用近乎不透明的玻璃色，避开模糊层与圆角接触处的接缝。 */
+    background: var(--glass-hi);
     box-shadow:
-      inset 0 1px 0 var(--glass-hi),
       0 1px 3px var(--shadow-soft),
       0 10px 30px var(--shadow-soft);
   }

@@ -73,9 +73,11 @@ essays 文件布局改为 `src/content/essays/<lang>/<slug>.md`（loader 仍为 
 
 - 所有宽度统一为单个圆形入口：`<details><summary>` 只显示当前语言短码（`EN` / `中` / `日`），展开后列出 English / 简体中文 / 日本語 三条全称。不再按宽度切换「三条目常显 / 收起」——常显三条目在窄视口会与居中导航重叠，而按宽度分层又要维护三套布局；统一收起后只有一种形态，任何视口都不会压到导航。
 - 对齐：按钮用固定正方形（`50px`，≤560px 随导航收缩为 `44px`）与 `top: 18px`（窄屏 `12px`），与主导航胶囊的顶边、高度逐像素对齐；字形用 `inline-flex` 居中并把 `line-height` 压到 `1`，避免 CJK 字形基线在圆形按钮里偏上或偏下。
-- 定位：`position: fixed; top: 18px; right: max(12px, calc(var(--pad-x) / 2)); z-index: 100`，复用 `--glass` / `--line` / `--glass-hi` / `--accent-current` 令牌与 `border-radius: 999px`；`summary` 带 `aria-label`，内部用视觉隐藏的全称让屏幕阅读器读到 `English` / `简体中文` / `日本語`。
+- 定位：`position: fixed; top: 18px; right: max(12px, calc(var(--pad-x) / 2)); z-index: 100`，复用 `--bg` / `--line` / `--glass-hi` / `--accent-current` 令牌与 `border-radius: 999px`；`summary` 带 `aria-label`，内部用视觉隐藏的全称让屏幕阅读器读到 `English` / `简体中文` / `日本語`。
+- 小圆按钮不用 `backdrop-filter`，也不用 `inset` 白高光：模糊层在圆形边缘会留下 1px 合成接缝，白高光叠在强调色填充上会显成一整圈月牙——这正是「里外各一层月牙」的来源。按钮改为纯背景 + 单层细边 + 柔和外阴影；展开面板改用近乎不透明的 `--glass-hi`，同样避开模糊接缝。
 - 收起态用原生 `details`，纯 CSS，无脚本；展开面板为胶囊下方的同款毛玻璃浮层，`right: 0` 贴齐按钮右缘。
 - 点击任一语言条目写入 `localStorage`（`is:inline` 脚本、`try/catch` 静默），入口页据此优先采用手动选择。
+- 收起行为用同一段 `is:inline` 脚本补充：`<details>` 原生不会在点击别处时关闭，因此监听 `document` 的 `click`（点到菜单外部就 `open = false`）与 `keydown`（`Esc` 收起并把焦点还给 `summary`）。脚本只做增强：没有脚本时仍可用 `summary` 二次点击开关，语言链接照常工作。
 - 每个条目是普通 `<a>`，目标由 `switchLocalePath` 或 `getEssayAlternates` 决定；点击时由一段 `is:inline` 的小脚本把 `locale` 写入 `localStorage`（写入包在 `try/catch` 中，失败静默），然后正常导航——无脚本时链接仍然可用，只是偏好不持久。
 - 键盘可达性沿用全站焦点样式；`details` 的 `summary` 显式加 `:focus-visible` 描边。
 
