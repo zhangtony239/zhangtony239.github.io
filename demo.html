@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tony Zhang · Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@1..144,1..1000&display=swap" rel="stylesheet" />
+<!--
+  ============================================================
+  单文件 UI Demo —— 双击即可打开，无需构建、无需网络。
+  待你确认后再迁移到 Astro 项目结构。
+  ============================================================
+  已实装的决策：
+  1. 纯白底（--bg: #FFFFFF），弥散背景暂时关闭，canvas 留空占位
+  2. 单色 211° 色带：#ADD0F5 / #8FC0F0 / #D6E8FB，全部低强度
+  3. 毛玻璃导航（backdrop-filter）+ 1px 8% 黑细线
+  4. Hero 只有名字 + 一句话 + 一条细线（无社交图标墙）
+  5. 滚动到底部是毛玻璃 footer
+  6. 深蓝 #2F6FE0 极低频：仅链接/焦点环/悬停标题
+
+  背景说明：底下的 WebGL shader 完整保留了（Perlin 梯度噪声 + 高斯柔光团，
+  已消除早期 value noise 的碎面问题），但用 BG_ENABLED = false 关掉。
+  想恢复弥散底，把 script 里的 BG_ENABLED 改成 true。
+  ============================================================
+-->
+<style>
+  :root {
+    /* —— 色板 —— */
+    --bg:           #FFFFFF;
+    --ink:          #121A26;
+    --ink-2:        #55637A;
+    --ink-3:        #939FB1;
+    --accent:       #ADD0F5;   /* 主光 / 晕 / 悬停底 */
+    --accent-deep:  #2F6FE0;   /* 唯一的"字"级蓝，~4.5:1 */
+    --line:         rgba(18, 26, 38, 0.08);
+
+    /* —— 毛玻璃 —— */
+    --glass:        rgba(255, 255, 255, 0.55);
+    --glass-strong: rgba(255, 255, 255, 0.68);
+    --glass-edge:   rgba(255, 255, 255, 0.72);
+
+    /* —— 字体 —— */
+    /* 西文：Google Sans Flex（可变字体，wght 1–1000 / opsz 1–144）
+       中文：回落到系统黑体 */
+    --sans: "Google Sans Flex", "Inter", -apple-system, BlinkMacSystemFont,
+            "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+            system-ui, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+            "Liberation Mono", monospace;
+
+    /* —— 节奏 —— */
+    --pad-x: clamp(20px, 5vw, 64px);
+    --nav-h: 64px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100svh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-optical-sizing: auto;
+    font-variation-settings: "slnt" 0, "wdth" 100, "ROND" 0;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* 选中态：不自定义，沿用浏览器默认 */
+
+  a { color: inherit; text-decoration: none; }
+
+  :focus-visible {
+    outline: 2px solid var(--accent-deep);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* ============ 背景 canvas ============ */
+  #bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+  }
+
+  /* 无 WebGL / 降级：用 CSS 多层渐变近似 */
+  html.no-webgl body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(62% 58% at 20% 16%, #D6E8FB 0%, rgba(214, 232, 251, 0) 62%),
+      radial-gradient(56% 52% at 80% 28%, #BFDCF8 0%, rgba(191, 220, 248, 0) 66%),
+      radial-gradient(74% 64% at 52% 88%, #ADD0F5 0%, rgba(173, 208, 245, 0) 72%),
+      var(--bg);
+    filter: blur(38px);
+  }
+
+  /* ============ 导航（毛玻璃） ============ */
+  .nav {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.62);
+    -webkit-backdrop-filter: blur(20px) saturate(1.7);
+    backdrop-filter: blur(20px) saturate(1.7);
+    border: 1px solid var(--line);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 1px 3px rgba(31, 60, 110, 0.05),
+      0 10px 30px rgba(31, 60, 110, 0.05);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-links a {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    letter-spacing: 0.03em;
+    color: var(--ink-2);
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+
+  .nav-links a:hover {
+    color: var(--ink);
+    background: rgba(18, 26, 38, 0.045);
+  }
+
+  /* 当前项：淡蓝胶囊 */
+  .nav-links a[aria-current="page"] {
+    color: var(--ink);
+    background: rgba(173, 208, 245, 0.42);
+  }
+
+  /* ============ 内容层 ============ */
+  main {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ============ Hero ============ */
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: calc(var(--nav-h) + 24px) var(--pad-x) 120px;
+    text-align: center;
+  }
+
+  .hero-inner { max-width: 720px; }
+
+  .rule {
+    display: block;
+    width: 44px;
+    height: 1px;
+    margin: 0 auto 30px;
+    background: var(--ink);
+    opacity: 0.22;
+  }
+
+  .hero-title {
+    margin: 0;
+    font-size: clamp(2.6rem, 8.6vw, 6.4rem);
+    font-weight: 200;
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+  }
+
+  .tagline {
+    margin: 26px 0 0;
+    font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    color: var(--ink-2);
+  }
+
+  /* 滚动提示 */
+  .scroll-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 36px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.24em;
+    color: var(--ink-3);
+    user-select: none;
+  }
+
+  .scroll-hint .track {
+    position: relative;
+    width: 1px;
+    height: 46px;
+    overflow: hidden;
+    background: linear-gradient(to bottom, rgba(18, 26, 38, 0.14), rgba(18, 26, 38, 0));
+  }
+
+  .scroll-hint .track::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 1px;
+    height: 18px;
+    background: linear-gradient(to bottom, rgba(47, 111, 224, 0), rgba(47, 111, 224, 0.85), rgba(47, 111, 224, 0));
+    animation: hint-slide 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  @keyframes hint-slide {
+    0%   { transform: translateY(-20px); }
+    60%, 100% { transform: translateY(48px); }
+  }
+
+  /* ============ 组件预览区（仅 demo） ============ */
+  .panel {
+    position: relative;
+    padding: 0 var(--pad-x) 96px;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .mono-label {
+    margin: 0 0 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+  }
+
+  .sec-title {
+    margin: 0 0 18px;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--ink-2);
+  }
+
+  .sec-title + .list,
+  .sec-title + .glass-card,
+  .sec-title + .swatches { margin-bottom: 64px; }
+
+  /* —— 随笔时间流 —— */
+  .list { border-top: 1px solid var(--line); }
+
+  .year {
+    margin: 0;
+    padding: 26px 0 10px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.2em;
+    color: var(--ink-3);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 68px 1fr;
+    gap: 20px;
+    align-items: baseline;
+    padding: 15px 10px 15px 0;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.18s ease, padding-left 0.18s ease;
+  }
+
+  .row:hover {
+    background: rgba(173, 208, 245, 0.2);
+    padding-left: 10px;
+  }
+
+  .row .date {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    transition: color 0.18s ease;
+  }
+
+  .row:hover .date { color: var(--ink-2); }
+
+  .row .title {
+    font-size: 0.97rem;
+    color: var(--ink);
+    transition: color 0.18s ease;
+  }
+
+  .row:hover .title { color: var(--accent-deep); }
+
+  /* —— 毛玻璃面 —— */
+  .glass-card {
+    border-radius: 14px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.42);
+    -webkit-backdrop-filter: blur(22px) saturate(1.7);
+    backdrop-filter: blur(22px) saturate(1.7);
+    border: 1px solid var(--glass-edge);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.85),
+      0 10px 34px rgba(31, 60, 110, 0.07);
+  }
+
+  .glass-card p {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.85;
+    color: var(--ink-2);
+  }
+
+  .glass-card p + p { margin-top: 12px; }
+
+  /* —— 色板 —— */
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+    gap: 12px;
+  }
+
+  .swatch {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .swatch .chip { height: 46px; }
+
+  .swatch .meta {
+    padding: 8px 10px 9px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  /* ============ Footer（毛玻璃） ============ */
+  .footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 28px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 26px var(--pad-x) 34px;
+    border-top: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.5);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    color: var(--ink-3);
+  }
+
+  .footer nav {
+    display: flex;
+    gap: 20px;
+  }
+
+  .footer a { transition: color 0.2s ease; }
+  .footer a:hover { color: var(--accent-deep); }
+
+  /* ============ 响应式 ============ */
+  @media (max-width: 560px) {
+    .nav { top: 12px; }
+    .nav-links a { padding: 7px 14px; font-size: 13px; }
+    .row { grid-template-columns: 58px 1fr; gap: 14px; }
+    .footer { flex-direction: column; align-items: flex-start; gap: 10px; }
+  }
+
+  /* ============ 减弱动效 ============ */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+    .scroll-hint .track::after { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<header class="nav">
+  <ul class="nav-links">
+    <li><a href="#" aria-current="page">首页</a></li>
+    <li><a href="#">p/acc</a></li>
+    <li><a href="#">随笔</a></li>
+  </ul>
+</header>
+
+<main>
+  <!-- ==================== 第一屏 ==================== -->
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="rule" aria-hidden="true"></span>
+      <!-- ↓ 换成你自己的名字 -->
+      <h1 class="hero-title">TONY<br />ZHANG</h1>
+      <!-- ↓ 换成你自己的那一句话 -->
+      <p class="tagline">在约束里做取舍，在灰度里找边界。</p>
+    </div>
+
+    <div class="scroll-hint" aria-hidden="true">
+      <span class="track"></span>
+      <span>SCROLL</span>
+    </div>
+  </section>
+
+  <!-- ==================== 组件预览（仅 demo，不随站上线） ==================== -->
+  <section class="panel">
+    <p class="mono-label">Demo · 组件预览 · 非最终内容</p>
+
+    <h2 class="sec-title">随笔 · 极简时间流</h2>
+    <div class="list">
+      <p class="year">2026</p>
+      <a class="row" href="#">
+        <span class="date">11-18</span>
+        <span class="title">关于「做减法」这件事</span>
+      </a>
+      <a class="row" href="#">
+        <span class="date">08-02</span>
+        <span class="title">重读《设计中的设计》之后的两点笔记</span>
+      </a>
+      <a class="row" href="#">
+        <span class="date">03-27</span>
+        <span class="title">为什么我给个人站选了 Astro</span>
+      </a>
+
+      <p class="year">2025</p>
+      <a class="row" href="#">
+        <span class="date">12-09</span>
+        <span class="title">一份不太完整的关于「科技感」的观察</span>
+      </a>
+      <a class="row" href="#">
+        <span class="date">06-14</span>
+        <span class="title">写在夏天</span>
+      </a>
+    </div>
+
+    <h2 class="sec-title">毛玻璃面 · 正文阅读区</h2>
+    <div class="glass-card">
+      <p>这是一段用于判断可读性的示例文字。正文使用 0.92rem、行高 1.85、颜色为冷灰蓝 <code>#55637A</code>，在冷白与弥散的浅蓝底上不会发飘。</p>
+      <p>毛玻璃面的关键是「只让底层的光透一点点」——不透明度 0.42、模糊 22px、饱和 1.7，再压一条 1px 的白色内高光。透太多会脏，透太少就变回普通白卡片。</p>
+    </div>
+
+    <h2 class="sec-title">色板</h2>
+    <div class="swatches">
+      <div class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <div class="meta">#FFFFFF<br />bg</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#ADD0F5"></div>
+        <div class="meta">#ADD0F5<br />accent</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#8FC0F0"></div>
+        <div class="meta">#8FC0F0<br />accent-2</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#D6E8FB"></div>
+        <div class="meta">#D6E8FB<br />accent-3</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#2F6FE0"></div>
+        <div class="meta">#2F6FE0<br />link</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#121A26"></div>
+        <div class="meta">#121A26<br />ink</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#55637A"></div>
+        <div class="meta">#55637A<br />ink-2</div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#939FB1"></div>
+        <div class="meta">#939FB1<br />ink-3</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <span>© 2026 Tony Zhang</span>
+  <nav>
+    <a href="#">GitHub</a>
+    <a href="#">邮箱</a>
+    <a href="#">RSS</a>
+  </nav>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // ══════════════════════════════════════════════════════════
+  // 背景开关：目前刻意关闭 —— 页面用纯白底，先只看 UI。
+  // #bg 这个 canvas 已预留但为空，不渲染任何东西。
+  // 要恢复弥散底：把 BG_ENABLED 改成 true（下方 shader 完整保留）。
+  // ══════════════════════════════════════════════════════════
+  var BG_ENABLED = false;
+  if (!BG_ENABLED) return;
+
+  var canvas = document.getElementById("bg");
+  var root = document.documentElement;
+
+  var gl = canvas.getContext("webgl", {
+    alpha: false,
+    antialias: false,
+    depth: false,
+    stencil: false,
+    powerPreference: "high-performance"
+  }) || canvas.getContext("experimental-webgl");
+
+  function degrade() {
+    root.classList.add("no-webgl");
+    if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
+  }
+
+  if (!gl) { degrade(); return; }
+
+  var VS = [
+    "attribute vec2 a_pos;",
+    "void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }"
+  ].join("\n");
+
+  var FS = [
+    "#ifdef GL_FRAGMENT_PRECISION_HIGH",
+    "precision highp float;",
+    "#else",
+    "precision mediump float;",
+    "#endif",
+    "",
+    "uniform vec2  u_res;",
+    "uniform float u_time;",
+    "uniform vec2  u_mouse;",
+    "",
+    // 标量哈希（用于 grain）
+    "float hash21(vec2 p) {",
+    "  vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));",
+    "  p3 += dot(p3, p3.yzx + 33.33);",
+    "  return fract((p3.x + p3.y) * p3.z);",
+    "}",
+    "",
+    // 梯度向量哈希（用于 Perlin）
+    "vec2 hash22(vec2 p) {",
+    "  vec3 p3 = fract(vec3(p.xyx) * vec3(0.1031, 0.1030, 0.0973));",
+    "  p3 += dot(p3, p3.yzx + 33.33);",
+    "  return fract((p3.xx + p3.yz) * p3.zy) * 2.0 - 1.0;",
+    "}",
+    "",
+    // Perlin 梯度噪声：quintic 插值 = C2 连续，彻底消除 value noise 的网格碎面
+    "float gnoise(vec2 p) {",
+    "  vec2 i = floor(p);",
+    "  vec2 f = fract(p);",
+    "  vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);",
+    "  float a = dot(hash22(i), f);",
+    "  float b = dot(hash22(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0));",
+    "  float c = dot(hash22(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0));",
+    "  float d = dot(hash22(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0));",
+    "  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);",
+    "}",
+    "",
+    "float fbm3(vec2 p) {",
+    "  float v = 0.0;",
+    "  float a = 0.62;",
+    "  for (int i = 0; i < 3; i++) {",
+    "    v += a * gnoise(p);",
+    "    p = p * 2.02 + vec2(11.3, 7.7);",
+    "    a *= 0.5;",
+    "  }",
+    "  return v * 0.92;",
+    "}",
+    "",
+    // 高斯柔光团：半径受噪声轻微扰动，边缘永远平滑
+    "float blob(vec2 p, vec2 c, float r, float wob, float n) {",
+    "  float d = length(p - c);",
+    "  d *= 1.0 - wob * n;",
+    "  float x = d / r;",
+    "  return exp(-x * x * 1.6);",
+    "}",
+    "",
+    // 单色 211° 色带，全程 smoothstep 过渡，无硬边
+    "vec3 fogColor(float t) {",
+    "  vec3 c0 = vec3(0.980, 0.984, 0.992);",
+    "  vec3 c1 = vec3(0.878, 0.933, 0.988);",
+    "  vec3 c2 = vec3(0.714, 0.839, 0.968);",
+    "  vec3 c3 = vec3(0.522, 0.714, 0.941);",
+    "  vec3 col = mix(c0, c1, smoothstep(0.00, 0.34, t));",
+    "  col = mix(col, c2, smoothstep(0.28, 0.70, t));",
+    "  col = mix(col, c3, smoothstep(0.66, 1.00, t));",
+    "  return col;",
+    "}",
+    "",
+    "void main() {",
+    "  vec2 p = (gl_FragCoord.xy - 0.5 * u_res) / min(u_res.x, u_res.y);",
+    "  float t = u_time * 0.16;",
+    "  vec2 q = p + u_mouse * 0.055;",
+    "",
+    // 两层低频平滑噪声：只用于扰动光团半径，不再做阈值切分
+    "  float n1 = fbm3(q * 1.55 + vec2( t * 0.21, -t * 0.16));",
+    "  float n2 = fbm3(q * 2.70 + vec2(-t * 0.13,  t * 0.19) + 9.4);",
+    "",
+    // 四个柔光团，按不同速度在 Lissajous 路径上缓慢漂移
+    "  vec2 c1 = vec2(-0.44 + 0.16 * sin(t * 0.62),        0.30 + 0.13 * cos(t * 0.47));",
+    "  vec2 c2 = vec2( 0.47 + 0.14 * cos(t * 0.38),        0.06 + 0.17 * sin(t * 0.55));",
+    "  vec2 c3 = vec2( 0.02 + 0.21 * sin(t * 0.29 + 1.9), -0.42 + 0.15 * cos(t * 0.43 + 0.7));",
+    "  vec2 c4 = vec2(-0.20 + 0.19 * cos(t * 0.34 + 2.5), -0.08 + 0.18 * sin(t * 0.41 + 1.3));",
+    "",
+    "  float fog = 0.0;",
+    "  fog += 0.95 * blob(q, c1, 0.66, 0.24, n1);",
+    "  fog += 0.80 * blob(q, c2, 0.54, 0.28, n2);",
+    "  fog += 0.70 * blob(q, c3, 0.74, 0.20, n1);",
+    "  fog += 0.50 * blob(q, c4, 0.46, 0.30, n2);",
+    "  fog = clamp(fog * 0.60, 0.0, 1.0);",
+    "",
+    "  vec3 col = fogColor(fog);",
+    "",
+    // 顶部极轻提亮，制造"光自上而来"的方向感
+    "  col += vec3(0.012, 0.016, 0.022) * smoothstep(0.50, 1.0, gl_FragCoord.y / u_res.y);",
+    "",
+    // 极轻暗角
+    "  float vig = smoothstep(1.60, 0.35, length(p * vec2(0.85, 1.0)));",
+    "  col -= (1.0 - vig) * vec3(0.030, 0.026, 0.018);",
+    "",
+    // grain：压色带 + 仪器质感（不随 time 变化，避免噪点闪烁）
+    "  float g = hash21(gl_FragCoord.xy + 0.5) - 0.5;",
+    "  col += g * 0.024;",
+    "",
+    "  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);",
+    "}"
+  ].join("\n");
+
+  function compile(type, src) {
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      if (window.console) console.warn("[bg] shader:", gl.getShaderInfoLog(s));
+      return null;
+    }
+    return s;
+  }
+
+  var vs = compile(gl.VERTEX_SHADER, VS);
+  var fs = compile(gl.FRAGMENT_SHADER, FS);
+  if (!vs || !fs) { degrade(); return; }
+
+  var prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    if (window.console) console.warn("[bg] link:", gl.getProgramInfoLog(prog));
+    degrade();
+    return;
+  }
+  gl.useProgram(prog);
+
+  // 全屏三角形
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  var aPos = gl.getAttribLocation(prog, "a_pos");
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  var uRes = gl.getUniformLocation(prog, "u_res");
+  var uTime = gl.getUniformLocation(prog, "u_time");
+  var uMouse = gl.getUniformLocation(prog, "u_mouse");
+
+  // 像素预算：弥散图对分辨率不敏感，1x 与 2x 肉眼无差
+  var MAX_PIXELS = 1400000;
+
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+    var w = Math.round(window.innerWidth * dpr);
+    var h = Math.round(window.innerHeight * dpr);
+    var scale = Math.min(1, Math.sqrt(MAX_PIXELS / Math.max(1, w * h)));
+    w = Math.max(2, Math.round(w * scale));
+    h = Math.max(2, Math.round(h * scale));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+      gl.viewport(0, 0, w, h);
+    }
+  }
+
+  resize();
+
+  var resizeTimer = 0;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 120);
+  }, { passive: true });
+
+  var target = { x: 0, y: 0 };
+  var cur = { x: 0, y: 0 };
+
+  window.addEventListener("pointermove", function (e) {
+    target.x = (e.clientX / window.innerWidth) * 2 - 1;
+    target.y = 1 - (e.clientY / window.innerHeight) * 2;
+  }, { passive: true });
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var start = performance.now();
+  var FPS_CAP = 30;
+  var STEP = 1000 / FPS_CAP;
+  var raf = 0;
+  var last = 0;
+  var running = true;
+
+  function draw(now) {
+    cur.x += (target.x - cur.x) * 0.05;
+    cur.y += (target.y - cur.y) * 0.05;
+
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uTime, (now - start) / 1000);
+    gl.uniform2f(uMouse, reduced ? 0 : cur.x, reduced ? 0 : cur.y);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  function loop(now) {
+    if (!running) return;
+    raf = requestAnimationFrame(loop);
+    if (now - last < STEP - 1.5) return;
+    last = now;
+    draw(now);
+  }
+
+  if (reduced) {
+    // 只画一帧静态画面
+    draw(start);
+  } else {
+    raf = requestAnimationFrame(loop);
+
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) {
+        running = false;
+        cancelAnimationFrame(raf);
+      } else if (!running) {
+        running = true;
+        last = 0;
+        raf = requestAnimationFrame(loop);
+      }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
