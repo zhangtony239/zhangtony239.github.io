@@ -47,7 +47,7 @@ essays 文件布局改为 `src/content/essays/<lang>/<slug>.md`（loader 仍为 
 - `formatDate(date, locale)` 保持 `YYYY.MM.DD`（三语同一视觉规格）；
 - `getEssayAlternates(slug)` → 仅含真实存在的译文 + `x-default` 指向英文版（英文缺失时 `x-default` 指向第一个可用语言，并在校验脚本中报告缺英文）。
 
-Schema 增加 `lang: z.enum(LOCALES)`，并在 `src/content.config.ts` 中校验其与目录一致；`date`、`draft`、`aigc` 仍是文章级属性，文章注册表在构建时校验同一 slug 的三语版本三者一致，不一致则抛错。
+语言完全由目录决定，不在 frontmatter 里重复声明 `lang` 字段——路径已经区分了语言，多写一份只会产生两边不一致的可能。`date`、`draft`、`aigc` 是文章级属性，注册表在构建时校验同一 slug 的三语版本三者一致，不一致则抛错。
 
 **备选：** 扁平目录 + 文件名后缀（`aigc-notice.ja.md`）——解析更脆、目录不可视化语言覆盖；frontmatter `translationOf` 字段——多一层冗余、容易与目录不同步。目录法使"某语言有哪些文章"一眼可见，也让缺译检查只是目录扫描。
 
@@ -80,7 +80,9 @@ Schema 增加 `lang: z.enum(LOCALES)`，并在 `src/content.config.ts` 中校验
 
 ### D7. `BaseLayout` / `ArticleLayout` 接收语言上下文
 
-`BaseLayout` 新增必填 `locale` 与可选 `alternates`，负责 `<html lang>`、`<link rel="alternate" hreflang>`、`x-default`、语言相关的字体回退类名（`lang-ja` 时字体栈补 `"Hiragino Sans", "Noto Sans JP", Meiryo`）；`ArticleLayout` 透传并本地化 AIGC 披露文案与日期。`NavPill` 接收 `locale` 并用字典渲染三个条目、链接保持当前语言前缀，当前项判定先剥掉语言前缀。
+`BaseLayout` 新增必填 `locale` 与可选 `alternates`，负责 `<html lang>`、`<link rel="alternate" hreflang>`、`x-default`；`ArticleLayout` 透传并本地化 AIGC 披露文案与日期。`NavPill` 接收 `locale` 并用字典渲染三个条目、链接保持当前语言前缀，当前项判定先剥掉语言前缀。
+
+**字体不按语言分栈：** Google Sans Flex 本来就只提供西文字形，中日文一直由 `--sans` 里已经排好的系统字体回落，日文页面的西文仍应使用同一款西文字体。因此不引入 `--sans-ja` 或按语言切换的字体栈，三语共用 `--sans`。
 
 ### D8. 三语完整性用独立 Node 脚本检查
 
@@ -93,7 +95,7 @@ Schema 增加 `lang: z.enum(LOCALES)`，并在 `src/content.config.ts` 中校验
 - [GitHub Pages 对不存在路径返回 404，缺译文章切语言会先跳首页] → 语言胶囊对缺译文章直接给首页链接，不产生 404 往返。
 - [`localStorage` 在隐私模式/配额满时抛错] → 所有读写包 `try/catch`，失败时语言切换与跳转仍正常工作，仅偏好不记忆。
 - [与未归档的 `add-personal-site-v1` 规范存在表面冲突：其 `site-shell` 要求导航恰为三项中文条目、`essay-archive` 定义全站唯一归档] → 主导航仍为三项（文字随语言变化，数量与顺序不变）；归档按语言分区是对该能力的扩充而非替换，归档时应在主 spec 中合并为"每语言一份归档"。`rename-p-acc-route` 若先落地，D1 的路径助手与 D3 的宣言目录需跟随其最终路由名（`/what-is-p-acc` → 新名）。
-- [日文排版：Google Sans Flex 无日文字形，日文会落到系统字体] → D7 为 `ja` 显式补日文字体栈，并核对 `line-height` 不因字体替换而塌陷（沿用现有 `1.02`/正文行高，仅在 `lang-ja` 下验证）。
+- [日文排版：汉字字形可能落到中文字体（如 PingFang SC / Microsoft YaHei）而非日文字体] → 已在基线存在的字体回落行为，本变更不调整字体栈；仅在回归检查中核对日文页面的西文仍为 Google Sans Flex、正文行高与中文页一致。
 - [`hreflang` 声明不存在的译文会误导搜索引擎] → `getEssayAlternates` 只输出真实存在的语言，`x-default` 指向英文版。
 
 ## Migration Plan

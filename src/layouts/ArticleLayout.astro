@@ -1,6 +1,8 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import { AIGC_NOTICE_LABEL, AIGC_NOTICE_PATH, SITE_NAME } from '../consts';
+import { AIGC_NOTICE_PATH, SITE_NAME } from '../consts';
+import { DEFAULT_LOCALE, type Alternate, type Locale } from '../i18n/config';
+import { useUi } from '../i18n/ui';
 import { formatDate } from '../lib/essays';
 
 interface Props {
@@ -10,6 +12,10 @@ interface Props {
   aigc?: boolean;
   /** 披露说明文档的链接，默认取站点常量。 */
   aigcNoticeHref?: string;
+  /** 当前页面语言，决定披露文案与日期展示。 */
+  locale?: Locale;
+  /** 三语 alternate 链接；缺省时由 BaseLayout 按当前路径镜像。 */
+  alternates?: Alternate[];
 }
 
 const {
@@ -17,10 +23,14 @@ const {
   date,
   aigc = false,
   aigcNoticeHref = AIGC_NOTICE_PATH,
+  locale = DEFAULT_LOCALE,
+  alternates,
 } = Astro.props;
+
+const ui = useUi(locale);
 ---
 
-<BaseLayout title={`${title} · ${SITE_NAME}`}>
+<BaseLayout title={`${title} · ${SITE_NAME}`} {locale} {alternates}>
   <main class="article-page">
     <article class="article">
       <header class="article-header">
@@ -33,7 +43,7 @@ const {
       {
         aigc && (
           <p class="aigc-note">
-            <a href={aigcNoticeHref}>*{AIGC_NOTICE_LABEL}</a>
+            <a href={aigcNoticeHref}>*{ui.aigc.noticeLabel}</a>
           </p>
         )
       }

@@ -1,0 +1,54 @@
+---
+import { render } from 'astro:content';
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import { AIGC_NOTICE_PATH } from '../../../consts';
+import { type Alternate, type Locale, localizedPath } from '../../../i18n/config';
+import {
+  getEssayAlternates,
+  getEssayRegistry,
+  parseEssayId,
+  type Essay,
+} from '../../../lib/essays';
+
+export async function getStaticPaths() {
+  const registry = await getEssayRegistry();
+  const paths: { params: { lang: Locale; slug: string }; props: { locale: Locale; essay: Essay } }[] = [];
+
+  for (const [slug, versions] of registry) {
+    for (const [locale, essay] of Object.entries(versions) as [Locale, Essay][]) {
+      if (essay.data.draft) continue;
+      paths.push({ params: { lang: locale, slug }, props: { locale, essay } });
+    }
+  }
+
+  return paths;
+}
+
+interface Props {
+  locale: Locale;
+  essay: Essay;
+}
+
+const { locale, essay } = Astro.props;
+const { slug } = parseEssayId(essay.id);
+const { Content } = await render(essay);
+
+/** hreflang 只声明真实存在的译文，顺序沿用 LOCALES，英文缺省时由 BaseLayout 取第一个可用语言为 x-default。 */
+const alternates: Alternate[] = (await getEssayAlternates(slug)).locales.map((item) => ({
+  locale: item,
+  href: localizedPath(item, `/essays/${slug}`),
+}));
+
+const aigcNoticeHref = localizedPath(locale, AIGC_NOTICE_PATH);
+---
+
+<ArticleLayout
+  title={essay.data.title}
+  date={essay.data.date}
+  aigc={essay.data.aigc}
+  aigcNoticeHref={aigcNoticeHref}
+  {locale}
+  {alternates}
+>
+  <Content />
+</ArticleLayout>

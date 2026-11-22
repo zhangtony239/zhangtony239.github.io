@@ -2,13 +2,13 @@
 
 ## 1. 语言配置与文案字典
 
-- [ ] 1.1 新建 `src/i18n/config.ts`：`LOCALES`（`en` / `zh-cn` / `ja`）、`DEFAULT_LOCALE`、`LOCALE_LABELS`、`HTML_LANG`，以及 `localizedPath(locale, path)`、`localeFromPath(pathname)`、`switchLocalePath(pathname, targetLocale)` 三个助手；用 `bun -e "import {localizedPath, switchLocalePath} from './src/i18n/config.ts'; console.log(localizedPath('ja','/essays'), switchLocalePath('/zh-cn/essays/aigc-notice','en'))"` 验证输出为 `/ja/essays` 与 `/en/essays/aigc-notice`
-- [ ] 1.2 新建 `src/i18n/ui.ts`：`UiDict` 接口 + `UI: Record<Locale, UiDict>`，把 `src/consts.ts` 与 `NavPill.astro`、`SiteFooter.astro`、`essays/index.astro`、`ArticleLayout.astro` 中的中文外壳文案迁为 `zh-cn` 条目，`useUi(locale)` 缺失键回落 `en`… 回落 `DEFAULT_LOCALE` 并 `console.warn`；验证 `bun run build` 成功，且 `dist/` 中文页面可见文案与改动前逐字一致（对照 git stash 前的构建产物或页面截图）
+- [x] 1.1 新建 `src/i18n/config.ts`：`LOCALES`（`en` / `zh-cn` / `ja`）、`DEFAULT_LOCALE`、`LOCALE_LABELS`、`HTML_LANG`，以及 `localizedPath(locale, path)`、`localeFromPath(pathname)`、`switchLocalePath(pathname, targetLocale)` 三个助手；用 `bun -e "import {localizedPath, switchLocalePath} from './src/i18n/config.ts'; console.log(localizedPath('ja','/essays'), switchLocalePath('/zh-cn/essays/aigc-notice','en'))"` 验证输出为 `/ja/essays` 与 `/en/essays/aigc-notice`
+- [x] 1.2 新建 `src/i18n/ui.ts`：`UiDict` 接口 + `UI: Record<Locale, UiDict>`，把 `src/consts.ts` 与 `NavPill.astro`、`SiteFooter.astro`、`essays/index.astro`、`ArticleLayout.astro` 中的中文外壳文案迁为 `zh-cn` 条目，`useUi(locale)` 在缺失键时回落 `DEFAULT_LOCALE` 并 `console.warn`；验证 `bun run build` 成功，且 `dist/zh-cn/` 页面可见文案与改动前逐字一致（对照改动前的构建产物或页面截图）
 - [ ] 1.3 为 `en`、`ja` 补全 `UiDict` 全部键的译文（导航三项、页面标题、归档标题、空状态、页脚 `aria-label`、AIGC 披露文案、语言胶囊无障碍名称）；验证 `bun run build` 无 TypeScript 接口缺键报错，且三语页面各自显示对应语言文案
 
 ## 2. 内容模型三语化
 
-- [ ] 2.1 把现有随笔迁入 `src/content/essays/zh-cn/`，在 `src/content.config.ts` 的 schema 增加 `lang: z.enum(LOCALES)` 并校验其与所在目录一致；验证 `bun run build` 成功，`/zh-cn/essays` 仍列出迁移前相同的文章与日期
+- [ ] 2.1 把现有随笔迁入 `src/content/essays/zh-cn/`，语言由所在目录决定（frontmatter 不声明 `lang`），非语言目录下的文件由 `parseEssayId` 报结构错误；验证 `bun run build` 成功，`/zh-cn/essays` 仍列出迁移前相同的文章与日期
 - [ ] 2.2 改造 `src/lib/essays.ts`：新增 `parseEssayId`、按语言参数化的 `getPublishedEssays(locale)`、`getEssayRegistry()`（slug → 语言版本）、`getEssayAlternates(slug)`，并在注册表构建时校验同一 slug 的 `date`/`draft`/`aigc` 三语一致（不一致抛错）；用 `bun -e` 断言 `getEssayRegistry()` 中 `aigc-notice` 只含 `zh-cn` 键、且 `getEssayAlternates('aigc-notice')` 只返回存在语言加 `x-default`
 - [ ] 2.3 宣言改为 `src/manifesto/<lang>/what-is-p-acc.md`，`src/pages/[lang]/what-is-p-acc.astro` 用 `import.meta.glob('../manifesto/*/what-is-p-acc.md', { eager: true })` 按当前语言取 `Content`/`frontmatter`；验证三语构建产物均含完整正文且无 `undefined` 标题
 - [ ] 2.4 补齐 `aigc-notice` 与 `what-is-p-acc` 的 `en`、`ja` 译文（保持与原稿同一 slug、同一 `date`、同一 `aigc` 标记）；验证 `bun run scripts/check-i18n.mjs` 输出无缺译清单

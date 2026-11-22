@@ -1,18 +1,30 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import { formatDate, groupByYear } from '../../lib/essays';
-import { SITE_NAME } from '../../consts';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { SITE_NAME } from '../../../consts';
+import { LOCALES, type Locale, localizedPath } from '../../../i18n/config';
+import { useUi } from '../../../i18n/ui';
+import { formatDate, groupByYear, parseEssayId } from '../../../lib/essays';
 
-const groups = await groupByYear();
+export function getStaticPaths() {
+  return LOCALES.map((locale) => ({ params: { lang: locale }, props: { locale } }));
+}
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = useUi(locale);
+const groups = await groupByYear(locale);
 ---
 
-<BaseLayout title={`随笔 · ${SITE_NAME}`}>
+<BaseLayout title={`${ui.essays.title} · ${SITE_NAME}`} {locale}>
   <main class="archive">
-    <h1 class="page-title">随笔</h1>
+    <h1 class="page-title">{ui.essays.title}</h1>
 
     {
       groups.length === 0 ? (
-        <p class="empty">还没有随笔。</p>
+        <p class="empty">{ui.archive.empty}</p>
       ) : (
         groups.map((group) => (
           <section class="group">
@@ -20,7 +32,7 @@ const groups = await groupByYear();
             <ul class="rows">
               {group.essays.map((essay) => (
                 <li>
-                  <a class="row" href={`/essays/${essay.id}`}>
+                  <a class="row" href={localizedPath(locale, `/essays/${parseEssayId(essay.id).slug}`)}>
                     <time class="date" datetime={essay.data.date.toISOString()}>
                       {formatDate(essay.data.date)}
                     </time>

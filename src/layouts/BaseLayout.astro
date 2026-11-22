@@ -4,21 +4,46 @@ import globalUrl from '../styles/global.css?url';
 import NavPill from '../components/NavPill.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { SITE_NAME } from '../consts';
+import {
+  DEFAULT_LOCALE,
+  HTML_LANG,
+  LOCALES,
+  type Alternate,
+  type Locale,
+  localizedPath,
+  stripLocale,
+} from '../i18n/config';
 
 interface Props {
   /** 文档标题；文章页传入「标题 · 站点名」。 */
   title?: string;
+  /** 当前页面语言，决定 <html lang>、外壳文案与 hreflang。 */
+  locale?: Locale;
+  /** 三语 alternate 链接；缺省时按当前页面路径镜像出三语版本。 */
+  alternates?: Alternate[];
 }
 
-const { title = SITE_NAME } = Astro.props;
+const { title = SITE_NAME, locale = DEFAULT_LOCALE, alternates } = Astro.props;
+
+const pagePath = stripLocale(Astro.url.pathname);
+const links: Alternate[] =
+  alternates ??
+  LOCALES.map((item) => ({ locale: item, href: localizedPath(item, pagePath) }));
+const xDefault = links.find((link) => link.locale === DEFAULT_LOCALE)?.href ?? links[0]?.href;
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={HTML_LANG[locale]} data-locale={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
+    {
+      links.map((link) => (
+        <link rel="alternate" hreflang={HTML_LANG[link.locale]} href={link.href} />
+      ))
+    }
+    {xDefault && <link rel="alternate" hreflang="x-default" href={xDefault} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -29,8 +54,8 @@ const { title = SITE_NAME } = Astro.props;
     <link rel="stylesheet" href={globalUrl} />
   </head>
   <body>
-    <NavPill />
+    <NavPill locale={locale} />
     <slot />
-    <SiteFooter />
+    <SiteFooter locale={locale} />
   </body>
 </html>

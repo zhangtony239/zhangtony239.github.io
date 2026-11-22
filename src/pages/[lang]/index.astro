@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE_NAME } from '../../consts';
+import { LOCALES, type Locale } from '../../i18n/config';
+import { useUi } from '../../i18n/ui';
+
+export function getStaticPaths() {
+  return LOCALES.map((locale) => ({ params: { lang: locale }, props: { locale } }));
+}
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = useUi(locale);
+---
+
+<BaseLayout title={SITE_NAME} {locale}>
+  <main class="home">
+    <div class="hero">
+      <span class="rule" aria-hidden="true"></span>
+      <p class="slogan">{ui.home.slogan}</p>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .home {
+    display: grid;
+    place-items: center;
+    min-height: 100svh;
+    padding: calc(var(--nav-h) + 24px) var(--pad-x) 120px;
+    text-align: center;
+  }
+
+  .hero {
+    width: 100%;
+  }
+
+  .rule {
+    display: block;
+    width: 44px;
+    height: 1px;
+    margin: 0 auto 30px;
+    background: var(--ink);
+    opacity: 0.22;
+  }
+
+  .slogan {
+    margin: 0;
+    font-size: 4rem;
+    font-weight: 200;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+</style>

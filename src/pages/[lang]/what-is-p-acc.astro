@@ -1,0 +1,42 @@
+---
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { AIGC_NOTICE_PATH } from '../../consts';
+import { type Alternate, type Locale, localizedPath, stripLocale } from '../../i18n/config';
+import { getManifesto, getManifestoLocales } from '../../lib/manifesto';
+
+export function getStaticPaths() {
+  return getManifestoLocales().map((locale) => ({ params: { lang: locale }, props: { locale } }));
+}
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const manifesto = getManifesto(locale);
+
+if (!manifesto) {
+  throw new Error(`[manifesto] 缺少 ${locale} 的 what-is-p-acc.md。`);
+}
+
+const { title, date, aigc, Content } = manifesto;
+
+const pagePath = stripLocale(Astro.url.pathname);
+const alternates: Alternate[] = getManifestoLocales().map((item) => ({
+  locale: item,
+  href: localizedPath(item, pagePath),
+}));
+
+const aigcNoticeHref = localizedPath(locale, AIGC_NOTICE_PATH);
+---
+
+<ArticleLayout
+  {title}
+  {date}
+  {aigc}
+  aigcNoticeHref={aigcNoticeHref}
+  {locale}
+  {alternates}
+>
+  <Content />
+</ArticleLayout>
