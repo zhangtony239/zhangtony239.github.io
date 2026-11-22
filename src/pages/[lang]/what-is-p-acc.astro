@@ -2,7 +2,7 @@
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import { AIGC_NOTICE_PATH } from '../../consts';
 import { type Alternate, type Locale, localizedPath, stripLocale } from '../../i18n/config';
-import { getManifesto, getManifestoLocales } from '../../lib/manifesto';
+import { getManifesto, getManifestoLocalePaths, getManifestoLocales } from '../../lib/manifesto';
 
 export function getStaticPaths() {
   return getManifestoLocales().map((locale) => ({ params: { lang: locale }, props: { locale } }));
@@ -27,6 +27,7 @@ const alternates: Alternate[] = getManifestoLocales().map((item) => ({
   href: localizedPath(item, pagePath),
 }));
 
+const localePaths = getManifestoLocalePaths();
 const aigcNoticeHref = localizedPath(locale, AIGC_NOTICE_PATH);
 ---
 
@@ -37,6 +38,7 @@ const aigcNoticeHref = localizedPath(locale, AIGC_NOTICE_PATH);
   aigcNoticeHref={aigcNoticeHref}
   {locale}
   {alternates}
+  {localePaths}
 >
   <Content />
 </ArticleLayout>

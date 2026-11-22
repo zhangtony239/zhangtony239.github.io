@@ -71,8 +71,9 @@ essays 文件布局改为 `src/content/essays/<lang>/<slug>.md`（loader 仍为 
 
 新增 `src/components/LanguagePill.astro`，接收 `locale` 与 `paths: Record<Locale, string>`（由页面通过助手算好传入，组件不做路由推断）：
 
-- 桌面（>560px）：`position: fixed; top: 18px; right: max(16px, calc(var(--pad-x) / 2)); z-index: 100`，复用 `--glass` / `--line` / `--glass-hi` 与 `border-radius: 999px`，条目样式与 `NavPill` 一致（13.5px、`--ink-2`、悬停 `--hover-fill`、当前项 `--accent-current` + `aria-current`），但高度对齐 `--nav-h` 内的胶囊内边距，使两枚胶囊顶部与高度视觉齐平。
-- 窄屏（≤560px）：胶囊收起为显示当前语言短码（`EN` / `中` / `日`）的单个 `<details><summary>` 入口，展开为下方浮层列出三项；纯 CSS + 原生 `details`，无脚本。短码始终带 `aria-label` 与 `<span class="sr-only">` 全称，屏幕阅读器读到的是 `English` / `简体中文` / `日本語`。
+- 三档宽度，按实测重叠边界取值：`>900px` 显示 English / 简体中文 / 日本語 三条全称（胶囊约 232px 宽，与居中导航的最小净距约 120px）；`601–900px` 显示 `EN` / `中` / `日` 三条短码（约 130px 宽）；`≤600px` 收起为只显示当前语言短码的 `<details><summary>`（约 38px 宽）。两种短码形态都用 `aria-label` 与视觉隐藏全称，屏幕阅读器读到的始终是 `English` / `简体中文` / `日本語`。
+- 定位：`position: fixed; top: 18px; right: max(12px, calc(var(--pad-x) / 2)); z-index: 100`，复用 `--glass` / `--line` / `--glass-hi` 与 `border-radius: 999px`，条目样式与 `NavPill` 一致（`--ink-2`、悬停 `--hover-fill`、当前项 `--accent-current` + `aria-current`）。
+- 收起态用原生 `details`，纯 CSS，无脚本；展开面板为胶囊下方的同款毛玻璃浮层。
 - 每个条目是普通 `<a>`，目标由 `switchLocalePath` 或 `getEssayAlternates` 决定；点击时由一段 `is:inline` 的小脚本把 `locale` 写入 `localStorage`（写入包在 `try/catch` 中，失败静默），然后正常导航——无脚本时链接仍然可用，只是偏好不持久。
 - 键盘可达性沿用全站焦点样式；`details` 的 `summary` 显式加 `:focus-visible` 描边。
 

@@ -1,0 +1,250 @@
+---
+import {
+  DEFAULT_LOCALE,
+  HTML_LANG,
+  LOCALE_LABELS,
+  LOCALE_SHORT_LABELS,
+  LOCALES,
+  type Locale,
+} from '../i18n/config';
+import { useUi } from '../i18n/ui';
+
+interface Props {
+  /** 当前页面语言。 */
+  locale?: Locale;
+  /** 每个语言对应的目标路径；缺译时由页面传入该语言首页。 */
+  paths: Record<Locale, string>;
+}
+
+const { locale = DEFAULT_LOCALE, paths } = Astro.props;
+const ui = useUi(locale);
+
+const entries = LOCALES.map((item) => ({
+  locale: item,
+  label: LOCALE_LABELS[item],
+  short: LOCALE_SHORT_LABELS[item],
+  href: paths[item],
+  lang: HTML_LANG[item],
+  isCurrent: item === locale,
+}));
+---
+
+<div class="lang">
+  <nav class="lang-wide" aria-label={ui.language.switchLabel}>
+    {
+      entries.map((entry) => (
+        <a
+          href={entry.href}
+          hreflang={entry.lang}
+          lang={entry.lang}
+          aria-label={entry.label}
+          aria-current={entry.isCurrent ? 'true' : undefined}
+          data-locale-link={entry.locale}
+        >
+          <span class="full" aria-hidden="true">{entry.label}</span>
+          <span class="short" aria-hidden="true">{entry.short}</span>
+        </a>
+      ))
+    }
+  </nav>
+
+  <details class="lang-compact">
+    <summary aria-label={`${ui.language.menuLabel}: ${LOCALE_LABELS[locale]}`}>
+      <span aria-hidden="true">{LOCALE_SHORT_LABELS[locale]}</span>
+      <span class="sr-only">{LOCALE_LABELS[locale]}</span>
+    </summary>
+    <ul class="lang-menu">
+      {
+        entries.map((entry) => (
+          <li>
+            <a
+              href={entry.href}
+              hreflang={entry.lang}
+              lang={entry.lang}
+              aria-current={entry.isCurrent ? 'true' : undefined}
+              data-locale-link={entry.locale}
+            >
+              {entry.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </details>
+</div>
+
+<script is:inline>
+  document.addEventListener('click', function (event) {
+    var target = event.target;
+    var link = target instanceof Element ? target.closest('[data-locale-link]') : null;
+    if (!link) return;
+
+    try {
+      window.localStorage.setItem('locale', link.getAttribute('data-locale-link') || '');
+    } catch (error) {
+      /* 本地存储不可用时静默失败：链接照常导航，只是不记住偏好。 */
+    }
+  });
+</script>
+
+<style>
+  .lang {
+    position: fixed;
+    top: 18px;
+    right: max(12px, calc(var(--pad-x) / 2));
+    z-index: 100;
+  }
+
+  /* —— 常显条目：宽屏全称，中等宽度短码 —— */
+  .lang-wide {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 5px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(20px) saturate(1.7);
+    backdrop-filter: blur(20px) saturate(1.7);
+    box-shadow:
+      inset 0 1px 0 var(--glass-hi),
+      0 1px 3px var(--shadow-soft),
+      0 10px 30px var(--shadow-soft);
+  }
+
+  .lang-wide a {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    color: var(--ink-2);
+    transition:
+      color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .lang-wide a:hover {
+    color: var(--ink);
+    background: var(--hover-fill);
+  }
+
+  .lang-wide a[aria-current='true'] {
+    color: var(--ink);
+    background: var(--accent-current);
+  }
+
+  .lang-wide .short {
+    display: none;
+  }
+
+  @media (max-width: 900px) {
+    .lang-wide .full {
+      display: none;
+    }
+
+    .lang-wide .short {
+      display: inline;
+    }
+
+    .lang-wide a {
+      padding: 8px 12px;
+    }
+  }
+
+  /* —— 收起态：窄屏只显示当前语言 —— */
+  .lang-compact {
+    display: none;
+  }
+
+  .lang-compact summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(20px) saturate(1.7);
+    backdrop-filter: blur(20px) saturate(1.7);
+    box-shadow:
+      inset 0 1px 0 var(--glass-hi),
+      0 1px 3px var(--shadow-soft),
+      0 10px 30px var(--shadow-soft);
+    font-size: 13.5px;
+    letter-spacing: 0.03em;
+    color: var(--ink-2);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .lang-compact summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .lang-compact[open] summary {
+    color: var(--ink);
+    background: var(--accent-current);
+  }
+
+  .lang-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 148px;
+    margin: 0;
+    padding: 5px;
+    list-style: none;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(20px) saturate(1.7);
+    backdrop-filter: blur(20px) saturate(1.7);
+    box-shadow:
+      inset 0 1px 0 var(--glass-hi),
+      0 1px 3px var(--shadow-soft),
+      0 10px 30px var(--shadow-soft);
+  }
+
+  .lang-menu a {
+    display: block;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    color: var(--ink-2);
+    transition:
+      color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .lang-menu a:hover {
+    color: var(--ink);
+    background: var(--hover-fill);
+  }
+
+  .lang-menu a[aria-current='true'] {
+    color: var(--ink);
+    background: var(--accent-current);
+  }
+
+  @media (max-width: 600px) {
+    .lang {
+      top: 12px;
+    }
+
+    .lang-wide {
+      display: none;
+    }
+
+    .lang-compact {
+      display: block;
+    }
+  }
+</style>

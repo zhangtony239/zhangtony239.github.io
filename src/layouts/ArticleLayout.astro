@@ -16,6 +16,8 @@ interface Props {
   locale?: Locale;
   /** 三语 alternate 链接；缺省时由 BaseLayout 按当前路径镜像。 */
   alternates?: Alternate[];
+  /** 语言胶囊的三语目标路径；缺译页面由调用方传入首页回落表。 */
+  localePaths?: Record<Locale, string>;
 }
 
 const {
@@ -25,12 +27,13 @@ const {
   aigcNoticeHref = AIGC_NOTICE_PATH,
   locale = DEFAULT_LOCALE,
   alternates,
+  localePaths,
 } = Astro.props;
 
 const ui = useUi(locale);
 ---
 
-<BaseLayout title={`${title} · ${SITE_NAME}`} {locale} {alternates}>
+<BaseLayout title={`${title} · ${SITE_NAME}`} {locale} {alternates} {localePaths}>
   <main class="article-page">
     <article class="article">
       <header class="article-header">
