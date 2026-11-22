@@ -71,9 +71,11 @@ essays 文件布局改为 `src/content/essays/<lang>/<slug>.md`（loader 仍为 
 
 新增 `src/components/LanguagePill.astro`，接收 `locale` 与 `paths: Record<Locale, string>`（由页面通过助手算好传入，组件不做路由推断）：
 
-- 三档宽度，按实测重叠边界取值：`>900px` 显示 English / 简体中文 / 日本語 三条全称（胶囊约 232px 宽，与居中导航的最小净距约 120px）；`601–900px` 显示 `EN` / `中` / `日` 三条短码（约 130px 宽）；`≤600px` 收起为只显示当前语言短码的 `<details><summary>`（约 38px 宽）。两种短码形态都用 `aria-label` 与视觉隐藏全称，屏幕阅读器读到的始终是 `English` / `简体中文` / `日本語`。
-- 定位：`position: fixed; top: 18px; right: max(12px, calc(var(--pad-x) / 2)); z-index: 100`，复用 `--glass` / `--line` / `--glass-hi` 与 `border-radius: 999px`，条目样式与 `NavPill` 一致（`--ink-2`、悬停 `--hover-fill`、当前项 `--accent-current` + `aria-current`）。
-- 收起态用原生 `details`，纯 CSS，无脚本；展开面板为胶囊下方的同款毛玻璃浮层。
+- 所有宽度统一为单个圆形入口：`<details><summary>` 只显示当前语言短码（`EN` / `中` / `日`），展开后列出 English / 简体中文 / 日本語 三条全称。不再按宽度切换「三条目常显 / 收起」——常显三条目在窄视口会与居中导航重叠，而按宽度分层又要维护三套布局；统一收起后只有一种形态，任何视口都不会压到导航。
+- 对齐：按钮用固定正方形（`50px`，≤560px 随导航收缩为 `44px`）与 `top: 18px`（窄屏 `12px`），与主导航胶囊的顶边、高度逐像素对齐；字形用 `inline-flex` 居中并把 `line-height` 压到 `1`，避免 CJK 字形基线在圆形按钮里偏上或偏下。
+- 定位：`position: fixed; top: 18px; right: max(12px, calc(var(--pad-x) / 2)); z-index: 100`，复用 `--glass` / `--line` / `--glass-hi` / `--accent-current` 令牌与 `border-radius: 999px`；`summary` 带 `aria-label`，内部用视觉隐藏的全称让屏幕阅读器读到 `English` / `简体中文` / `日本語`。
+- 收起态用原生 `details`，纯 CSS，无脚本；展开面板为胶囊下方的同款毛玻璃浮层，`right: 0` 贴齐按钮右缘。
+- 点击任一语言条目写入 `localStorage`（`is:inline` 脚本、`try/catch` 静默），入口页据此优先采用手动选择。
 - 每个条目是普通 `<a>`，目标由 `switchLocalePath` 或 `getEssayAlternates` 决定；点击时由一段 `is:inline` 的小脚本把 `locale` 写入 `localStorage`（写入包在 `try/catch` 中，失败静默），然后正常导航——无脚本时链接仍然可用，只是偏好不持久。
 - 键盘可达性沿用全站焦点样式；`details` 的 `summary` 显式加 `:focus-visible` 描边。
 

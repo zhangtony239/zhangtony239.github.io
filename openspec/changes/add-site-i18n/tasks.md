@@ -22,7 +22,7 @@
 
 ## 4. 语言胶囊
 
-- [x] 4.1 新建 `src/components/LanguagePill.astro`：`>560px` 常显三条目，`≤560px` 收起为 `<details><summary>` 显示当前语言短码（`EN`/`中`/`日`）并在展开后列出三项，短码带 `aria-label` 与视觉隐藏全称，样式复用 `--glass`/`--line`/`--accent-current` 令牌；验证在 1440px 与 320px 视口截图下胶囊固定右上角、与主导航胶囊无重叠，`summary` 可 Tab 聚焦并显示 2px 焦点描边
+- [x] 4.1 新建 `src/components/LanguagePill.astro`：所有宽度统一为单个圆形 `<details><summary>` 入口，只显示当前语言短码（`EN`/`中`/`日`），展开后列出 English/简体中文/日本語 三条全称；`summary` 固定 50px 正方形（≤560px 收缩为 44px）、`line-height: 1` 与 `inline-flex` 居中，与主导航胶囊顶边同高对齐；带 `aria-label` 与视觉隐藏全称，样例令牌全部取自 `--glass`/`--line`/`--accent-current`；验证 320px / 1440px 下按钮与主导航顶边齐平且不重叠、短码居中无偏移、`summary` 可 Tab 聚焦并显示 2px 焦点描边
 - [x] 4.2 在各页面接入 `LanguagePill`：传入 `locale` 与 `paths: Record<Locale, string>`（文章页用 `getEssayAlternates`，缺译目标回落该语言首页）；验证从 `/zh-cn/essays/aigc-notice` 切到 English 落在 `/en/essays/aigc-notice`，而在仅中文存在的文章上切 日本語 落在 `/ja/`
 - [x] 4.3 语言选择持久化：条目上挂 `is:inline` 脚本把 `locale` 写入 `localStorage`（`try/catch` 包裹），并在禁用本地存储时静默失败；验证切换后 `localStorage.getItem('locale')` 为对应值，且隐私模式下切换仍能正常跳转、控制台无未捕获错误
 
