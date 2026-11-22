@@ -4,8 +4,9 @@ import ArticleLayout from '../layouts/ArticleLayout.astro';
 
 const title = String(frontmatter.title);
 const date = new Date(frontmatter.date);
+const aigc = frontmatter.aigc === true;
 ---
 
-<ArticleLayout {title} {date}>
+<ArticleLayout {title} {date} {aigc}>
   <Content />
 </ArticleLayout>

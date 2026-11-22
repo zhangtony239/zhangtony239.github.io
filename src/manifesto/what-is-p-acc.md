@@ -1,6 +1,7 @@
 ---
 title: 什么是 p/acc 主义？
 date: 2026-11-22
+aigc: true
 ---
 
 现在的 AI 圈子充斥着两类让人反胃的戏码：
@@ -95,5 +96,3 @@ p/acc 不反对安全，我们反对把“安全”当成大词，用来掩盖�
 4. **开放共筑：** 属于所有人的未来，必须由所有人共同拥有。
 
 **Accelerate for our foundational love.**
-
-*<br /><sup>\*本文适用于《含AIGC文稿统一解释说明》</sup>*

@@ -1,14 +1,23 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import { SITE_NAME } from '../consts';
+import { AIGC_NOTICE_LABEL, AIGC_NOTICE_PATH, SITE_NAME } from '../consts';
 import { formatDate } from '../lib/essays';
 
 interface Props {
   title: string;
   date: Date;
+  /** 写作过程中是否使用了 AIGC 处理；为真时渲染文末披露标记。 */
+  aigc?: boolean;
+  /** 披露说明文档的链接，默认取站点常量。 */
+  aigcNoticeHref?: string;
 }
 
-const { title, date } = Astro.props;
+const {
+  title,
+  date,
+  aigc = false,
+  aigcNoticeHref = AIGC_NOTICE_PATH,
+} = Astro.props;
 ---
 
 <BaseLayout title={`${title} · ${SITE_NAME}`}>
@@ -21,6 +30,13 @@ const { title, date } = Astro.props;
       <div class="prose">
         <slot />
       </div>
+      {
+        aigc && (
+          <p class="aigc-note">
+            <a href={aigcNoticeHref}>*{AIGC_NOTICE_LABEL}</a>
+          </p>
+        )
+      }
     </article>
   </main>
 </BaseLayout>
@@ -207,5 +223,25 @@ const { title, date } = Astro.props;
     margin: 2.6em 0;
     border: 0;
     border-top: 1px solid var(--line);
+  }
+
+  /* —— AIGC 披露标记：注脚身份，视觉弱于正文链接 —— */
+  .aigc-note {
+    margin: 2.5em 0 0;
+    font-size: 11.5px;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    color: var(--ink-3);
+  }
+
+  .aigc-note a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.18s ease;
+  }
+
+  .aigc-note a:hover {
+    color: var(--ink-2);
+    text-decoration: underline;
   }
 </style>

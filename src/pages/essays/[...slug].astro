@@ -20,6 +20,10 @@ const { essay } = Astro.props;
 const { Content } = await render(essay);
 ---
 
-<ArticleLayout title={essay.data.title} date={essay.data.date}>
+<ArticleLayout
+  title={essay.data.title}
+  date={essay.data.date}
+  aigc={essay.data.aigc}
+>
   <Content />
 </ArticleLayout>
