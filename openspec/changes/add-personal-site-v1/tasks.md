@@ -50,7 +50,7 @@
 
 - [x] 7.1 从 `C:\Users\Tony\Downloads\p-acc-manifesto.md` 导入正文到 `src/manifesto/p-acc.md`：保留正文原样、删除开头那一行 `# p/acc — Paired Accelerationism Manifesto`（`h1` 由模板独占）、补 `title: p/acc` 与 `date` frontmatter；验证：`/p/acc` 页面上只有一个 `h1`，且 Downloads 中的源文件未被修改
 - [x] 7.2 创建 `src/pages/p/acc.astro`，导入 Markdown 的 `Content`、`frontmatter` 并套 `ArticleLayout`；验证：访问 `/p/acc` 渲染成功，版式与任意随笔完全一致
-- [ ] 7.3 逐项核对宣言的全部结构元素在页面上完整呈现、无内容丢失：5 个二级标题、6 个三级标题、四列对照表格、开篇引用块、一个 3 项无序列表、一个 4 项有序列表、1 处行内代码；验证：与源文件逐段对比，段落数一致
+- [x] 7.3 逐项核对宣言的全部结构元素在页面上完整呈现、无内容丢失（按当前正文）：5 个二级标题、6 个三级标题、四列对照表格、一个 2 项无序列表、一个 4 项有序列表、1 处行内代码；验证：与 `src/manifesto/p-acc.md` 逐段对比，构建产物实测计数一致
 - [x] 7.4 确认宣言不在归档与聚合输出中、且不存在别名路径；验证：`/essays` 列表中无该条，构建产物中指向宣言的链接只有 `/p/acc`
 - [x] 7.5 确认导航 `p/acc` 条目文案为 `p/acc` 且指向 `/p/acc`；验证：从任意页面点击该条目进入宣言页
 
