@@ -1,0 +1,11 @@
+---
+import { Content, frontmatter } from '../../manifesto/p-acc.md';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+
+const title = String(frontmatter.title);
+const date = new Date(frontmatter.date);
+---
+
+<ArticleLayout {title} {date}>
+  <Content />
+</ArticleLayout>

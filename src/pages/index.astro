@@ -1,14 +1,46 @@
 ---
-// 占位首页，用于验证构建骨架；任务 5.1 会替换为真正的首页。
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_NAME, SLOGAN } from '../consts';
 ---
 
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>占位</title>
-  </head>
-  <body>
-    <p>placeholder</p>
-  </body>
-</html>
+<BaseLayout title={SITE_NAME}>
+  <main class="home">
+    <div class="hero">
+      <span class="rule" aria-hidden="true"></span>
+      <p class="slogan">{SLOGAN}</p>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .home {
+    display: grid;
+    place-items: center;
+    min-height: 100svh;
+    padding: calc(var(--nav-h) + 24px) var(--pad-x) 120px;
+    text-align: center;
+  }
+
+  .hero {
+    width: 100%;
+  }
+
+  .rule {
+    display: block;
+    width: 44px;
+    height: 1px;
+    margin: 0 auto 30px;
+    background: var(--ink);
+    opacity: 0.22;
+  }
+
+  .slogan {
+    margin: 0;
+    font-size: clamp(2.6rem, 8.6vw, 6.4rem);
+    font-weight: 200;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+</style>

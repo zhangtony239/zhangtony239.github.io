@@ -1,0 +1,50 @@
+---
+import { FOOTER_LINKS } from '../consts';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <p class="copy">© {year}</p>
+  <nav class="links" aria-label="站外链接">
+    {FOOTER_LINKS.map((link) => <a href={link.href}>{link.label}</a>)}
+  </nav>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 28px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 26px var(--pad-x) 34px;
+    border-top: 1px solid var(--line);
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    color: var(--ink-3);
+  }
+
+  .copy {
+    margin: 0;
+  }
+
+  .links {
+    display: flex;
+    gap: 20px;
+  }
+
+  .links a {
+    transition: color 0.2s ease;
+  }
+
+  .links a:hover {
+    color: var(--accent-deep);
+  }
+</style>

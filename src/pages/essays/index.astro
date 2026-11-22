@@ -1,0 +1,122 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate, groupByYear } from '../../lib/essays';
+import { SITE_NAME } from '../../consts';
+
+const groups = await groupByYear();
+---
+
+<BaseLayout title={`随笔 · ${SITE_NAME}`}>
+  <main class="archive">
+    <h1 class="page-title">随笔</h1>
+
+    {
+      groups.length === 0 ? (
+        <p class="empty">还没有随笔。</p>
+      ) : (
+        groups.map((group) => (
+          <section class="group">
+            <h2 class="year">{group.year}</h2>
+            <ul class="rows">
+              {group.essays.map((essay) => (
+                <li>
+                  <a class="row" href={`/essays/${essay.id}`}>
+                    <time class="date" datetime={essay.data.date.toISOString()}>
+                      {formatDate(essay.data.date)}
+                    </time>
+                    <span class="title">{essay.data.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      )
+    }
+  </main>
+</BaseLayout>
+
+<style>
+  .archive {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: calc(var(--nav-h) + 76px) var(--pad-x) 104px;
+  }
+
+  .page-title {
+    margin: 0 0 3rem;
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--ink-2);
+  }
+
+  .empty {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+
+  .group + .group {
+    margin-top: 2.4rem;
+  }
+
+  .year {
+    margin: 0;
+    padding: 0 0 10px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    color: var(--ink-3);
+  }
+
+  .rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 82px 1fr;
+    gap: 20px;
+    align-items: baseline;
+    padding: 15px 10px 15px 0;
+    border-bottom: 1px solid var(--line);
+    transition:
+      background 0.18s ease,
+      padding-left 0.18s ease;
+  }
+
+  .row:hover {
+    padding-left: 10px;
+    background: var(--accent-hover);
+  }
+
+  .date {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    transition: color 0.18s ease;
+  }
+
+  .row:hover .date {
+    color: var(--ink-2);
+  }
+
+  .title {
+    font-size: 0.97rem;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+    transition: color 0.18s ease;
+  }
+
+  .row:hover .title {
+    color: var(--accent-deep);
+  }
+</style>

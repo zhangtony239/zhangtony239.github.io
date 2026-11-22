@@ -1,0 +1,36 @@
+---
+import tokensUrl from '../styles/tokens.css?url';
+import globalUrl from '../styles/global.css?url';
+import NavPill from '../components/NavPill.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { SITE_NAME } from '../consts';
+
+interface Props {
+  /** 文档标题；文章页传入「标题 · 站点名」。 */
+  title?: string;
+}
+
+const { title = SITE_NAME } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@1..144,1..1000&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href={tokensUrl} />
+    <link rel="stylesheet" href={globalUrl} />
+  </head>
+  <body>
+    <NavPill />
+    <slot />
+    <SiteFooter />
+  </body>
+</html>

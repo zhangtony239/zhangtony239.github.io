@@ -1,0 +1,101 @@
+---
+const current = Astro.url.pathname.replace(/\/+$/, '') || '/';
+
+const items = [
+  { label: '首页', href: '/', isCurrent: current === '/' },
+  { label: 'p/acc', href: '/p/acc', isCurrent: current === '/p/acc' },
+  {
+    label: '随笔',
+    href: '/essays',
+    isCurrent: current === '/essays' || current.startsWith('/essays/'),
+  },
+];
+---
+
+<nav class="nav" aria-label="主导航">
+  <ul class="nav-links">
+    {
+      items.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            aria-current={item.isCurrent ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .nav {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    max-width: calc(100vw - 24px);
+    padding: 5px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(20px) saturate(1.7);
+    backdrop-filter: blur(20px) saturate(1.7);
+    box-shadow:
+      inset 0 1px 0 var(--glass-hi),
+      0 1px 3px var(--shadow-soft),
+      0 10px 30px var(--shadow-soft);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav a {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 13.5px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    color: var(--ink-2);
+    transition:
+      color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .nav a:hover {
+    color: var(--ink);
+    background: var(--hover-fill);
+  }
+
+  .nav a[aria-current='page'] {
+    color: var(--ink);
+    background: var(--accent-current);
+  }
+
+  @media (max-width: 560px) {
+    .nav {
+      top: 12px;
+      padding: 4px;
+    }
+
+    .nav-links {
+      gap: 0;
+    }
+
+    .nav a {
+      padding: 7px 13px;
+      font-size: 12.5px;
+    }
+  }
+</style>
