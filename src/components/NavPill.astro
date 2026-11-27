@@ -224,11 +224,14 @@ const items = [
   .nav a {
     position: relative;
     z-index: 1;
-    display: inline-block;
-    padding: var(--spacing-2xs) var(--spacing-s);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--spacing-2xs) * 2 + var(--text-step--1) * 1.4);
+    padding: 0 var(--spacing-s);
     border-radius: 999px;
     font-size: var(--text-step--1);
-    line-height: 1.4;
+    line-height: 1;
     letter-spacing: 0.03em;
     white-space: nowrap;
     color: var(--color-ink-2);
@@ -268,7 +271,7 @@ const items = [
     }
 
     .nav a {
-      padding: var(--spacing-2xs) var(--spacing-xs);
+      padding: 0 var(--spacing-xs);
     }
   }
 </style>

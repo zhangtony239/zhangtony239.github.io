@@ -129,20 +129,24 @@
 }
 
 ::view-transition-group(nav-active-pill) {
+  height: calc(var(--spacing-2xs) * 2 + var(--text-step--1) * 1.4) !important;
   animation-duration: 0.32s;
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+::view-transition-image-pair(nav-active-pill) {
+  background: var(--color-accent-current);
+  border-radius: 999px;
+}
+
 ::view-transition-old(nav-active-pill),
 ::view-transition-new(nav-active-pill) {
-  height: 100%;
+  opacity: 0;
   animation: none;
 }
 
-::view-transition-old(nav-active-pill) {
-  opacity: 0;
-}
-
+::view-transition-group(nav-pill),
+::view-transition-group(lang-pill),
 ::view-transition-old(nav-pill),
 ::view-transition-new(nav-pill),
 ::view-transition-old(lang-pill),
