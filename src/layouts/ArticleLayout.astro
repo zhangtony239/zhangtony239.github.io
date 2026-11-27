@@ -56,7 +56,7 @@ const ui = useUi(locale);
 
 <style>
   .article-page {
-    padding: calc(var(--nav-h) + 76px) var(--pad-x) 104px;
+    padding: calc(var(--spacing-nav-h) + var(--spacing-2xl)) var(--spacing-pad-x) var(--spacing-3xl);
   }
 
   .article {
@@ -65,61 +65,66 @@ const ui = useUi(locale);
   }
 
   .article-header {
-    margin-bottom: 2.6em;
+    margin-bottom: var(--spacing-xl);
   }
 
   .article-header h1 {
-    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    font-size: var(--text-step-4);
     font-weight: 400;
     line-height: 1.22;
     letter-spacing: -0.02em;
-    color: var(--ink);
+    text-wrap: balance;
+    color: var(--color-ink);
   }
 
   .article-header time {
     display: block;
-    margin-top: 14px;
-    font-family: var(--mono);
-    font-size: 11.5px;
+    margin-top: var(--spacing-xs);
+    font-family: var(--font-mono);
+    font-size: var(--text-step--2);
     letter-spacing: 0.06em;
-    color: var(--ink-3);
+    color: var(--color-ink-3);
   }
 
   /* —— 正文基线 —— */
   .prose {
-    color: var(--ink-2);
-    font-size: 1rem;
+    color: var(--color-ink-2);
+    font-size: var(--text-step-0);
     line-height: 1.85;
     overflow-wrap: break-word;
   }
 
   .prose :global(p) {
     margin: 0 0 1.5em;
+    text-wrap: pretty;
   }
 
   /* —— 标题层级：正文从 h2 起，不自动加序号 —— */
   .prose :global(h2) {
     margin: 2.6em 0 0.85em;
-    font-size: 1.5rem;
+    font-size: var(--text-step-2);
     font-weight: 500;
     line-height: 1.35;
     letter-spacing: -0.01em;
-    color: var(--ink);
+    text-wrap: balance;
+    color: var(--color-ink);
   }
 
   .prose :global(h3) {
     margin: 2em 0 0.65em;
-    font-size: 1.12rem;
+    font-size: var(--text-step-1);
     font-weight: 500;
     line-height: 1.45;
-    color: var(--ink);
+    text-wrap: balance;
+    color: var(--color-ink);
   }
 
   .prose :global(h4) {
     margin: 1.8em 0 0.6em;
-    font-size: 1rem;
+    font-size: var(--text-step-0);
     font-weight: 500;
-    color: var(--ink);
+    text-wrap: balance;
+    color: var(--color-ink);
   }
 
   .prose :global(h2 + p),
@@ -132,10 +137,10 @@ const ui = useUi(locale);
   .prose :global(blockquote) {
     margin: 2.2em 0;
     padding-left: 1.2em;
-    border-left: 1px solid var(--line);
-    font-size: 1.1rem;
+    border-left: 1px solid var(--color-line);
+    font-size: var(--text-step-1);
     line-height: 1.8;
-    color: var(--ink);
+    color: var(--color-ink);
   }
 
   .prose :global(blockquote p:last-child) {
@@ -154,13 +159,13 @@ const ui = useUi(locale);
   }
 
   .prose :global(li::marker) {
-    color: var(--ink-3);
+    color: var(--color-ink-3);
   }
 
   /* —— 强调与行内代码 —— */
   .prose :global(strong) {
     font-weight: 600;
-    color: var(--ink);
+    color: var(--color-ink);
   }
 
   .prose :global(em) {
@@ -170,19 +175,19 @@ const ui = useUi(locale);
   .prose :global(code) {
     padding: 0.15em 0.4em;
     border-radius: 4px;
-    background: var(--code-bg);
-    font-family: var(--mono);
+    background: var(--color-code-bg);
+    font-family: var(--font-mono);
     font-size: 0.9em;
-    color: var(--ink);
+    color: var(--color-ink);
   }
 
   .prose :global(pre) {
     margin: 0 0 1.5em;
     padding: 1em 1.2em;
     overflow-x: auto;
-    border: 1px solid var(--line);
+    border: 1px solid var(--color-line);
     border-radius: 8px;
-    background: var(--code-bg);
+    background: var(--color-code-bg);
   }
 
   .prose :global(pre code) {
@@ -192,7 +197,7 @@ const ui = useUi(locale);
   }
 
   .prose :global(a) {
-    color: var(--accent-deep);
+    color: var(--color-accent-deep);
   }
 
   /*
@@ -207,44 +212,44 @@ const ui = useUi(locale);
     margin-block: 0 1.8em;
     overflow-x: auto;
     border-collapse: collapse;
-    font-size: 0.92rem;
+    font-size: var(--text-step--1);
     line-height: 1.6;
   }
 
   .prose :global(th),
   .prose :global(td) {
     min-width: 110px;
-    padding: 13px 16px;
+    padding: var(--spacing-xs) var(--spacing-s);
     text-align: left;
     vertical-align: top;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--color-line);
   }
 
   .prose :global(th) {
-    font-size: 0.8rem;
+    font-size: var(--text-step--2);
     font-weight: 500;
     letter-spacing: 0.06em;
-    color: var(--ink-3);
+    color: var(--color-ink-3);
     white-space: nowrap;
   }
 
   .prose :global(td) {
-    color: var(--ink-2);
+    color: var(--color-ink-2);
   }
 
   .prose :global(hr) {
     margin: 2.6em 0;
     border: 0;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--color-line);
   }
 
   /* —— AIGC 披露标记：注脚身份，视觉弱于正文链接 —— */
   .aigc-note {
-    margin: 2.5em 0 0;
-    font-size: 11.5px;
+    margin: var(--spacing-l) 0 0;
+    font-size: var(--text-step--2);
     line-height: 1.7;
     letter-spacing: 0.02em;
-    color: var(--ink-3);
+    color: var(--color-ink-3);
   }
 
   .aigc-note a {
@@ -254,7 +259,7 @@ const ui = useUi(locale);
   }
 
   .aigc-note a:hover {
-    color: var(--ink-2);
+    color: var(--color-ink-2);
     text-decoration: underline;
   }
 </style>

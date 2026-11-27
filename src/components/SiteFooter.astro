@@ -26,18 +26,18 @@ const year = new Date().getFullYear();
     z-index: 1;
     display: flex;
     flex-wrap: wrap;
-    gap: 14px 28px;
+    gap: var(--spacing-xs) var(--spacing-m);
     align-items: center;
     justify-content: space-between;
-    padding: 26px var(--pad-x) 34px;
-    border-top: 1px solid var(--line);
-    background: var(--glass);
+    padding: var(--spacing-m) var(--spacing-pad-x) var(--spacing-l);
+    border-top: 1px solid var(--color-line);
+    background: var(--color-glass);
     -webkit-backdrop-filter: blur(16px) saturate(1.4);
     backdrop-filter: blur(16px) saturate(1.4);
-    font-family: var(--mono);
-    font-size: 11px;
+    font-family: var(--font-mono);
+    font-size: var(--text-step--2);
     letter-spacing: 0.07em;
-    color: var(--ink-3);
+    color: var(--color-ink-3);
   }
 
   .copy {
@@ -46,7 +46,7 @@ const year = new Date().getFullYear();
 
   .links {
     display: flex;
-    gap: 20px;
+    gap: var(--spacing-s);
   }
 
   .links a {
@@ -54,6 +54,6 @@ const year = new Date().getFullYear();
   }
 
   .links a:hover {
-    color: var(--accent-deep);
+    color: var(--color-accent-deep);
   }
 </style>

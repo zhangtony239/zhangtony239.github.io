@@ -18,7 +18,7 @@
 2. **架构与样式**：
    - 保持纯静态输出，无必要不引入额外 Astro integration 或客户端重框架。
    - 站点级语言无关配置（站点名、AIGC 说明路径、页脚链接）集中在 `src/consts.ts`。
-   - 视觉 Token 与全局样式集中在 `src/styles/tokens.css` 与 `src/styles/global.css`。
+   - 视觉 Token 与全局样式集中在 `src/styles/global.css`（Tailwind v4 `@theme`）。
 3. **改动后验证**：
    - 修改页面、样式或配置后，至少执行 `bun run build` 确认构建通过。
    - 涉及多语言内容或文案改动时，额外执行 `bun run check:i18n`。

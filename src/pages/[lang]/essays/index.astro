@@ -52,83 +52,83 @@ const groups = await groupByYear(locale);
   .archive {
     max-width: 780px;
     margin: 0 auto;
-    padding: calc(var(--nav-h) + 76px) var(--pad-x) 104px;
+    padding: calc(var(--spacing-nav-h) + var(--spacing-2xl)) var(--spacing-pad-x) var(--spacing-3xl);
   }
 
   .page-title {
-    margin: 0 0 3rem;
-    font-size: 12.5px;
+    margin: 0 0 var(--spacing-xl);
+    font-size: var(--text-step--1);
     font-weight: 500;
     letter-spacing: 0.14em;
-    color: var(--ink-2);
+    color: var(--color-ink-2);
   }
 
   .empty {
     margin: 0;
-    font-family: var(--mono);
-    font-size: 12px;
+    font-family: var(--font-mono);
+    font-size: var(--text-step--2);
     letter-spacing: 0.06em;
-    color: var(--ink-3);
+    color: var(--color-ink-3);
   }
 
   .group + .group {
-    margin-top: 2.4rem;
+    margin-top: var(--spacing-l);
   }
 
   .year {
     margin: 0;
-    padding: 0 0 10px;
-    font-family: var(--mono);
-    font-size: 10.5px;
+    padding: 0 0 var(--spacing-2xs);
+    font-family: var(--font-mono);
+    font-size: var(--text-step--2);
     font-weight: 400;
     letter-spacing: 0.2em;
-    color: var(--ink-3);
+    color: var(--color-ink-3);
   }
 
   .rows {
     margin: 0;
     padding: 0;
     list-style: none;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--color-line);
   }
 
   .row {
     display: grid;
     grid-template-columns: 82px 1fr;
-    gap: 20px;
+    gap: var(--spacing-s);
     align-items: baseline;
-    padding: 15px 10px 15px 0;
-    border-bottom: 1px solid var(--line);
+    padding: var(--spacing-xs) var(--spacing-2xs) var(--spacing-xs) 0;
+    border-bottom: 1px solid var(--color-line);
     transition:
       background 0.18s ease,
       padding-left 0.18s ease;
   }
 
   .row:hover {
-    padding-left: 10px;
-    background: var(--accent-hover);
+    padding-left: var(--spacing-2xs);
+    background: var(--color-accent-hover);
   }
 
   .date {
-    font-family: var(--mono);
-    font-size: 11.5px;
+    font-family: var(--font-mono);
+    font-size: var(--text-step--2);
     letter-spacing: 0.04em;
-    color: var(--ink-3);
+    color: var(--color-ink-3);
     transition: color 0.18s ease;
   }
 
   .row:hover .date {
-    color: var(--ink-2);
+    color: var(--color-ink-2);
   }
 
   .title {
-    font-size: 0.97rem;
-    color: var(--ink);
+    font-size: var(--text-step-0);
+    color: var(--color-ink);
     overflow-wrap: anywhere;
     transition: color 0.18s ease;
   }
 
   .row:hover .title {
-    color: var(--accent-deep);
+    color: var(--color-accent-deep);
   }
 </style>

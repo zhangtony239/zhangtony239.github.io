@@ -30,7 +30,7 @@ const ui = useUi(locale);
     display: grid;
     place-items: center;
     min-height: 100svh;
-    padding: calc(var(--nav-h) + 24px) var(--pad-x) 120px;
+    padding: calc(var(--spacing-nav-h) + var(--spacing-m)) var(--spacing-pad-x) var(--spacing-3xl);
     text-align: center;
   }
 
@@ -40,20 +40,20 @@ const ui = useUi(locale);
 
   .rule {
     display: block;
-    width: 44px;
+    width: var(--spacing-xl);
     height: 1px;
-    margin: 0 auto 30px;
-    background: var(--ink);
+    margin: 0 auto var(--spacing-l);
+    background: var(--color-ink);
     opacity: 0.22;
   }
 
   .slogan {
     margin: 0;
-    font-size: 4rem;
+    font-size: var(--text-step-5);
     font-weight: 200;
     line-height: 1.02;
     letter-spacing: -0.035em;
     text-wrap: balance;
-    color: var(--ink);
+    color: var(--color-ink);
   }
 </style>

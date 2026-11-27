@@ -1,6 +1,5 @@
 ---
-import tokensUrl from '../styles/tokens.css?url';
-import globalUrl from '../styles/global.css?url';
+import '../styles/global.css';
 import NavPill from '../components/NavPill.astro';
 import LanguagePill from '../components/LanguagePill.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -64,8 +63,6 @@ const switchPaths: Record<Locale, string> =
       href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@1..144,1..1000&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href={tokensUrl} />
-    <link rel="stylesheet" href={globalUrl} />
   </head>
   <body>
     <NavPill locale={locale} />

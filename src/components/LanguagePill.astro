@@ -102,8 +102,8 @@ const entries = LOCALES.map((item) => ({
 <style>
   .lang {
     position: fixed;
-    top: 18px;
-    right: max(12px, calc(var(--pad-x) / 2));
+    top: var(--spacing-s);
+    right: max(var(--spacing-xs), calc(var(--spacing-pad-x) / 2));
     z-index: 100;
   }
 
@@ -111,27 +111,28 @@ const entries = LOCALES.map((item) => ({
     position: relative;
   }
 
-  /* 圆形按钮：与居中导航胶囊同高同顶边，字形用 flex 居中并压平行高避免偏移。 */
+  /* 圆形按钮：与居中导航胶囊通过同一套 Utopia 高度公式保持同高同顶边。 */
   .lang-compact summary {
+    --pill-size: calc(var(--spacing-3xs) * 2 + var(--spacing-2xs) * 2 + var(--text-step--1) * 1.4 + 2px);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 50px;
-    height: 50px;
+    width: var(--pill-size);
+    height: var(--pill-size);
     margin: 0;
     padding: 0;
-    border: 1px solid var(--line);
+    border: 1px solid var(--color-line);
     border-radius: 999px;
     /* 小圆不用背景模糊，也不用 inset 白高光：模糊层在圆形边缘会留下 1px 合成接缝，
        白高光叠在强调色填充上就是一整圈月牙。 */
-    background: var(--bg);
+    background: var(--color-bg);
     box-shadow:
-      0 1px 3px var(--shadow-soft),
-      0 10px 30px var(--shadow-soft);
-    font-size: 13.5px;
+      0 1px 3px var(--color-shadow-soft),
+      0 10px 30px var(--color-shadow-soft);
+    font-size: var(--text-step--1);
     line-height: 1;
     letter-spacing: 0;
-    color: var(--ink-2);
+    color: var(--color-ink-2);
     cursor: pointer;
     list-style: none;
   }
@@ -141,14 +142,14 @@ const entries = LOCALES.map((item) => ({
   }
 
   .lang-compact summary:focus-visible {
-    outline: 2px solid var(--accent-deep);
+    outline: 2px solid var(--color-accent-deep);
     outline-offset: 3px;
   }
 
   .lang-compact[open] summary {
-    color: var(--ink);
-    background: var(--hover-fill);
-    box-shadow: 0 1px 3px var(--shadow-soft);
+    color: var(--color-ink);
+    background: var(--color-hover-fill);
+    box-shadow: 0 1px 3px var(--color-shadow-soft);
   }
 
   /* 中日文字形的基线偏移在 flex 居中下最稳；西文短码用同一盒模型居中。 */
@@ -159,58 +160,52 @@ const entries = LOCALES.map((item) => ({
 
   .lang-menu {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + var(--spacing-2xs));
     right: 0;
     display: flex;
     flex-direction: column;
     gap: 2px;
     min-width: 148px;
     margin: 0;
-    padding: 5px;
+    padding: var(--spacing-3xs);
     list-style: none;
-    border: 1px solid var(--line);
+    border: 1px solid var(--color-line);
     border-radius: 18px;
     /* 面板用近乎不透明的玻璃色，避开模糊层与圆角接触处的接缝。 */
-    background: var(--glass-hi);
+    background: var(--color-glass-hi);
     box-shadow:
-      0 1px 3px var(--shadow-soft),
-      0 10px 30px var(--shadow-soft);
+      0 1px 3px var(--color-shadow-soft),
+      0 10px 30px var(--color-shadow-soft);
   }
 
   .lang-menu a {
     display: block;
-    padding: 8px 14px;
+    padding: var(--spacing-2xs) var(--spacing-s);
     border-radius: 12px;
-    font-size: 13.5px;
+    font-size: var(--text-step--1);
     line-height: 1.4;
     letter-spacing: 0.03em;
     white-space: nowrap;
-    color: var(--ink-2);
+    color: var(--color-ink-2);
     transition:
       color 0.2s ease,
       background 0.2s ease;
   }
 
   .lang-menu a:hover {
-    color: var(--ink);
-    background: var(--hover-fill);
+    color: var(--color-ink);
+    background: var(--color-hover-fill);
   }
 
   .lang-menu a[aria-current='true'] {
-    color: var(--ink);
-    background: var(--accent-current);
+    color: var(--color-ink);
+    background: var(--color-accent-current);
   }
 
-  /* 与导航胶囊同步的窄屏收缩：顶边下移、按钮边长随之变小。 */
+  /* 与导航胶囊同步的窄屏收缩。 */
   @media (max-width: 560px) {
     .lang {
-      top: 12px;
-    }
-
-    .lang-compact summary {
-      width: 44px;
-      height: 44px;
-      font-size: 12.5px;
+      top: var(--spacing-xs);
     }
   }
 </style>

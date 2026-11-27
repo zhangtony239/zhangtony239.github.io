@@ -1,6 +1,5 @@
 ---
-import tokensUrl from '../styles/tokens.css?url';
-import globalUrl from '../styles/global.css?url';
+import '../styles/global.css';
 import { DEFAULT_LOCALE, LOCALE_LABELS, LOCALES, localizedPath } from '../i18n/config';
 
 const fallbackHref = localizedPath(DEFAULT_LOCALE, '/');
@@ -18,8 +17,6 @@ const fallbackHref = localizedPath(DEFAULT_LOCALE, '/');
       ))
     }
     <link rel="alternate" hreflang="x-default" href={fallbackHref} />
-    <link rel="stylesheet" href={tokensUrl} />
-    <link rel="stylesheet" href={globalUrl} />
     <noscript><meta http-equiv="refresh" content="0;url=/en/" /></noscript>
     <script is:inline>
       (function () {
@@ -79,24 +76,24 @@ const fallbackHref = localizedPath(DEFAULT_LOCALE, '/');
     display: grid;
     place-items: center;
     align-content: center;
-    gap: 28px;
+    gap: var(--spacing-m);
     min-height: 100svh;
-    padding: var(--pad-x);
+    padding: var(--spacing-pad-x);
     text-align: center;
   }
 
   .entry-title {
     margin: 0;
-    font-size: 12.5px;
+    font-size: var(--text-step--1);
     font-weight: 500;
     letter-spacing: 0.14em;
-    color: var(--ink-2);
+    color: var(--color-ink-2);
   }
 
   .entry-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--spacing-2xs);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -104,19 +101,19 @@ const fallbackHref = localizedPath(DEFAULT_LOCALE, '/');
 
   .entry-links a {
     display: inline-block;
-    padding: 8px 18px;
-    border: 1px solid var(--line);
+    padding: var(--spacing-2xs) var(--spacing-s);
+    border: 1px solid var(--color-line);
     border-radius: 999px;
-    font-size: 13.5px;
+    font-size: var(--text-step--1);
     letter-spacing: 0.03em;
-    color: var(--ink-2);
+    color: var(--color-ink-2);
     transition:
       color 0.2s ease,
       background 0.2s ease;
   }
 
   .entry-links a:hover {
-    color: var(--ink);
-    background: var(--hover-fill);
+    color: var(--color-ink);
+    background: var(--color-hover-fill);
   }
 </style>
