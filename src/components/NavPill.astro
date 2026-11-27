@@ -29,21 +29,135 @@ const items = [
 ---
 
 <nav class="nav" aria-label={ui.nav.label}>
-  <ul class="nav-links">
-    {
-      items.map((item) => (
-        <li>
-          <a
-            href={item.href}
-            aria-current={item.isCurrent ? 'page' : undefined}
-          >
-            {item.label}
-          </a>
-        </li>
-      ))
-    }
-  </ul>
+  <div class="nav-track">
+    <span class="nav-active" aria-hidden="true"></span>
+    <span class="nav-hover" aria-hidden="true"></span>
+    <ul class="nav-links">
+      {
+        items.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              aria-current={item.isCurrent ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
 </nav>
+
+<script is:inline>
+  (function () {
+    var nav = document.currentScript && document.currentScript.previousElementSibling;
+    if (!(nav instanceof HTMLElement)) return;
+
+    var track = nav.querySelector('.nav-track');
+    var activePill = nav.querySelector('.nav-active');
+    var hoverPill = nav.querySelector('.nav-hover');
+    var linksWrap = nav.querySelector('.nav-links');
+    if (
+      !(track instanceof HTMLElement) ||
+      !(activePill instanceof HTMLElement) ||
+      !(hoverPill instanceof HTMLElement) ||
+      !(linksWrap instanceof HTMLElement)
+    ) {
+      return;
+    }
+
+    var hoverVisible = false;
+    var hoveredLink = null;
+    var focusedLink = null;
+
+    function syncActive() {
+      var current = linksWrap.querySelector('a[aria-current="page"]');
+      if (!(current instanceof HTMLElement)) {
+        activePill.style.opacity = '0';
+        return;
+      }
+      activePill.style.transform = 'translateX(' + current.offsetLeft + 'px)';
+      activePill.style.width = current.offsetWidth + 'px';
+      activePill.style.opacity = '1';
+    }
+
+    function moveHover(target) {
+      if (!(target instanceof HTMLElement)) {
+        hoverPill.style.opacity = '0';
+        hoverVisible = false;
+        return;
+      }
+
+      var x = target.offsetLeft;
+      var w = target.offsetWidth;
+
+      if (!hoverVisible) {
+        hoverPill.style.transition = 'opacity 0.18s ease';
+        hoverPill.style.transform = 'translateX(' + x + 'px)';
+        hoverPill.style.width = w + 'px';
+        void hoverPill.offsetWidth;
+        hoverPill.style.opacity = '1';
+        hoverPill.style.transition = '';
+        hoverVisible = true;
+      } else {
+        hoverPill.style.transform = 'translateX(' + x + 'px)';
+        hoverPill.style.width = w + 'px';
+        hoverPill.style.opacity = '1';
+      }
+    }
+
+    linksWrap.addEventListener('pointerover', function (event) {
+      var target = event.target;
+      var link = target instanceof Element ? target.closest('a') : null;
+      if (!(link instanceof HTMLElement) || !linksWrap.contains(link)) return;
+      hoveredLink = link;
+      moveHover(link);
+    });
+
+    linksWrap.addEventListener('pointerleave', function () {
+      hoveredLink = null;
+      moveHover(focusedLink);
+    });
+
+    linksWrap.addEventListener('focusin', function (event) {
+      var target = event.target;
+      if (!(target instanceof HTMLElement) || target.tagName !== 'A') return;
+      if (!target.matches(':focus-visible')) return;
+      focusedLink = target;
+      moveHover(target);
+    });
+
+    linksWrap.addEventListener('focusout', function () {
+      focusedLink = null;
+      requestAnimationFrame(function () {
+        var active = document.activeElement;
+        if (active instanceof HTMLElement && linksWrap.contains(active) && active.matches(':focus-visible')) {
+          focusedLink = active;
+          moveHover(active);
+        } else {
+          moveHover(hoveredLink);
+        }
+      });
+    });
+
+    syncActive();
+    nav.setAttribute('data-ready', '');
+
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(function () {
+        syncActive();
+        if (hoverVisible) {
+          moveHover(hoveredLink || focusedLink);
+        }
+      }).observe(linksWrap);
+    }
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(syncActive);
+    }
+  })();
+</script>
 
 <style>
   .nav {
@@ -65,6 +179,37 @@ const items = [
       inset 0 1px 0 var(--color-glass-hi),
       0 1px 3px var(--color-shadow-soft),
       0 10px 30px var(--color-shadow-soft);
+    view-transition-name: nav-pill;
+  }
+
+  .nav-track {
+    position: relative;
+  }
+
+  .nav-active,
+  .nav-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .nav-active {
+    background: var(--color-accent-current);
+    opacity: 0;
+    view-transition-name: nav-active-pill;
+  }
+
+  .nav-hover {
+    background: var(--color-hover-fill);
+    opacity: 0;
+    transition:
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.18s ease;
   }
 
   .nav-links {
@@ -77,6 +222,8 @@ const items = [
   }
 
   .nav a {
+    position: relative;
+    z-index: 1;
     display: inline-block;
     padding: var(--spacing-2xs) var(--spacing-s);
     border-radius: 999px;
@@ -98,6 +245,17 @@ const items = [
   .nav a[aria-current='page'] {
     color: var(--color-ink);
     background: var(--color-accent-current);
+  }
+
+  .nav[data-ready] a:hover,
+  .nav[data-ready] a[aria-current='page'] {
+    background: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-hover {
+      transition: opacity 0.15s ease;
+    }
   }
 
   @media (max-width: 560px) {

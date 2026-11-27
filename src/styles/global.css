@@ -123,6 +123,44 @@
   }
 }
 
+/* 跨文档 View Transitions：让顶部导航胶囊与当前页高亮滑块跨 URL 平滑过渡。 */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(nav-active-pill) {
+  animation-duration: 0.32s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(nav-active-pill),
+::view-transition-new(nav-active-pill) {
+  height: 100%;
+  animation: none;
+}
+
+::view-transition-old(nav-active-pill) {
+  opacity: 0;
+}
+
+::view-transition-old(nav-pill),
+::view-transition-new(nav-pill),
+::view-transition-old(lang-pill),
+::view-transition-new(lang-pill) {
+  animation: none;
+}
+
+::view-transition-old(nav-pill),
+::view-transition-old(lang-pill) {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*) {
+    animation-duration: 0.01ms !important;
+  }
+}
+
 /* 仅对屏幕阅读器可见的文案。 */
 .sr-only {
   position: absolute;

@@ -35,28 +35,130 @@ const entries = LOCALES.map((item) => ({
       <span class="mark" aria-hidden="true">{LOCALE_SHORT_LABELS[locale]}</span>
       <span class="sr-only">{LOCALE_LABELS[locale]}</span>
     </summary>
-    <ul class="lang-menu">
-      {
-        entries.map((entry) => (
-          <li>
-            <a
-              href={entry.href}
-              hreflang={entry.lang}
-              lang={entry.lang}
-              aria-current={entry.isCurrent ? 'true' : undefined}
-              data-locale-link={entry.locale}
-            >
-              {entry.label}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <div class="lang-menu">
+      <div class="lang-track">
+        <span class="lang-active" aria-hidden="true"></span>
+        <span class="lang-hover" aria-hidden="true"></span>
+        <ul class="lang-list">
+          {
+            entries.map((entry) => (
+              <li>
+                <a
+                  href={entry.href}
+                  hreflang={entry.lang}
+                  lang={entry.lang}
+                  aria-current={entry.isCurrent ? 'true' : undefined}
+                  data-locale-link={entry.locale}
+                >
+                  {entry.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
   </details>
 </div>
 
 <script is:inline>
   (function () {
+    var langRoot = document.currentScript && document.currentScript.previousElementSibling;
+    var details = langRoot instanceof HTMLElement ? langRoot.querySelector('.lang-compact') : null;
+    var list = langRoot instanceof HTMLElement ? langRoot.querySelector('.lang-list') : null;
+    var activePill = langRoot instanceof HTMLElement ? langRoot.querySelector('.lang-active') : null;
+    var hoverPill = langRoot instanceof HTMLElement ? langRoot.querySelector('.lang-hover') : null;
+
+    var hoverVisible = false;
+    var hoveredLink = null;
+    var focusedLink = null;
+
+    function syncActive() {
+      if (!(list instanceof HTMLElement) || !(activePill instanceof HTMLElement)) return;
+      var current = list.querySelector('a[aria-current="true"]');
+      if (!(current instanceof HTMLElement)) {
+        activePill.style.opacity = '0';
+        return;
+      }
+      activePill.style.transform = 'translateY(' + current.offsetTop + 'px)';
+      activePill.style.height = current.offsetHeight + 'px';
+      activePill.style.opacity = '1';
+    }
+
+    function moveHover(target) {
+      if (!(hoverPill instanceof HTMLElement)) return;
+      if (!(target instanceof HTMLElement)) {
+        hoverPill.style.opacity = '0';
+        hoverVisible = false;
+        return;
+      }
+
+      var y = target.offsetTop;
+      var h = target.offsetHeight;
+
+      if (!hoverVisible) {
+        hoverPill.style.transition = 'opacity 0.18s ease';
+        hoverPill.style.transform = 'translateY(' + y + 'px)';
+        hoverPill.style.height = h + 'px';
+        void hoverPill.offsetHeight;
+        hoverPill.style.opacity = '1';
+        hoverPill.style.transition = '';
+        hoverVisible = true;
+      } else {
+        hoverPill.style.transform = 'translateY(' + y + 'px)';
+        hoverPill.style.height = h + 'px';
+        hoverPill.style.opacity = '1';
+      }
+    }
+
+    if (details instanceof HTMLDetailsElement && list instanceof HTMLElement) {
+      if (langRoot instanceof HTMLElement) langRoot.setAttribute('data-ready', '');
+
+      details.addEventListener('toggle', function () {
+        if (details.open) {
+          syncActive();
+        } else {
+          hoveredLink = null;
+          focusedLink = null;
+          moveHover(null);
+        }
+      });
+
+      list.addEventListener('pointerover', function (event) {
+        var target = event.target;
+        var link = target instanceof Element ? target.closest('a') : null;
+        if (!(link instanceof HTMLElement) || !list.contains(link)) return;
+        hoveredLink = link;
+        moveHover(link);
+      });
+
+      list.addEventListener('pointerleave', function () {
+        hoveredLink = null;
+        moveHover(focusedLink);
+      });
+
+      list.addEventListener('focusin', function (event) {
+        var target = event.target;
+        if (!(target instanceof HTMLElement) || target.tagName !== 'A') return;
+        if (!target.matches(':focus-visible')) return;
+        focusedLink = target;
+        moveHover(target);
+      });
+
+      list.addEventListener('focusout', function () {
+        focusedLink = null;
+        requestAnimationFrame(function () {
+          var active = document.activeElement;
+          if (active instanceof HTMLElement && list.contains(active) && active.matches(':focus-visible')) {
+            focusedLink = active;
+            moveHover(active);
+          } else {
+            moveHover(hoveredLink);
+          }
+        });
+      });
+    }
+
     function openMenu() {
       return document.querySelector('.lang-compact[open]');
     }
@@ -105,6 +207,7 @@ const entries = LOCALES.map((item) => ({
     top: var(--spacing-s);
     right: max(var(--spacing-xs), calc(var(--spacing-pad-x) / 2));
     z-index: 100;
+    view-transition-name: lang-pill;
   }
 
   .lang-compact {
@@ -162,13 +265,8 @@ const entries = LOCALES.map((item) => ({
     position: absolute;
     top: calc(100% + var(--spacing-2xs));
     right: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
     min-width: 148px;
-    margin: 0;
     padding: var(--spacing-3xs);
-    list-style: none;
     border: 1px solid var(--color-line);
     border-radius: 18px;
     background: var(--color-glass);
@@ -180,7 +278,47 @@ const entries = LOCALES.map((item) => ({
       0 10px 30px var(--color-shadow-soft);
   }
 
+  .lang-track {
+    position: relative;
+  }
+
+  .lang-active,
+  .lang-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .lang-active {
+    background: var(--color-accent-current);
+    opacity: 0;
+  }
+
+  .lang-hover {
+    background: var(--color-hover-fill);
+    opacity: 0;
+    transition:
+      transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+      height 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.18s ease;
+  }
+
+  .lang-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
   .lang-menu a {
+    position: relative;
+    z-index: 1;
     display: block;
     padding: var(--spacing-2xs) var(--spacing-s);
     border-radius: 12px;
@@ -202,6 +340,17 @@ const entries = LOCALES.map((item) => ({
   .lang-menu a[aria-current='true'] {
     color: var(--color-ink);
     background: var(--color-accent-current);
+  }
+
+  .lang[data-ready] .lang-menu a:hover,
+  .lang[data-ready] .lang-menu a[aria-current='true'] {
+    background: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lang-hover {
+      transition: opacity 0.15s ease;
+    }
   }
 
   /* 与导航胶囊同步的窄屏收缩。 */
