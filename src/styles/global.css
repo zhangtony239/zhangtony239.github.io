@@ -15,7 +15,7 @@
   --color-line: rgba(18, 26, 38, 0.08);
 
   /* —— 由色板派生的透明度变体（毛玻璃与悬停态） —— */
-  --color-glass: rgba(255, 255, 255, 0.62);
+  --color-glass: rgba(255, 255, 255, 0.78);
   --color-glass-edge: rgba(255, 255, 255, 0.72);
   --color-glass-hi: rgba(255, 255, 255, 0.9);
   --color-hover-fill: rgba(18, 26, 38, 0.045);

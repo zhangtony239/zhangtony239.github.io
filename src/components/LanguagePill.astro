@@ -207,7 +207,6 @@ const entries = LOCALES.map((item) => ({
     top: var(--spacing-s);
     right: max(var(--spacing-xs), calc(var(--spacing-pad-x) / 2));
     z-index: 100;
-    view-transition-name: lang-pill;
   }
 
   .lang-compact {
@@ -217,6 +216,7 @@ const entries = LOCALES.map((item) => ({
   /* 圆形按钮：与居中导航胶囊通过同一套 Utopia 高度公式保持同高同顶边。 */
   .lang-compact summary {
     --pill-size: calc(var(--spacing-3xs) * 2 + var(--spacing-2xs) * 2 + var(--text-step--1) * 1.4 + 2px);
+    view-transition-name: lang-pill;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -251,7 +251,7 @@ const entries = LOCALES.map((item) => ({
 
   .lang-compact[open] summary {
     color: var(--color-ink);
-    background: var(--color-hover-fill);
+    background: color-mix(in srgb, var(--color-bg) 95.5%, var(--color-ink));
     box-shadow: 0 1px 3px var(--color-shadow-soft);
   }
 
