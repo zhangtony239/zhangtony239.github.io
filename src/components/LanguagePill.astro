@@ -72,6 +72,8 @@ const entries = LOCALES.map((item) => ({
     var hoverVisible = false;
     var hoveredLink = null;
     var focusedLink = null;
+    var closeTimer = null;
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
 
     function syncActive() {
       if (!(list instanceof HTMLElement) || !(activePill instanceof HTMLElement)) return;
@@ -111,13 +113,53 @@ const entries = LOCALES.map((item) => ({
       }
     }
 
+    function startOpen() {
+      if (!(details instanceof HTMLDetailsElement)) return;
+      if (closeTimer) {
+        clearTimeout(closeTimer);
+        closeTimer = null;
+      }
+      syncActive();
+      void details.offsetWidth;
+      details.classList.add('is-open');
+    }
+
+    function closeMenu(menu) {
+      if (!(menu instanceof HTMLDetailsElement) || !menu.open) return;
+      menu.classList.remove('is-open');
+      hoveredLink = null;
+      focusedLink = null;
+      moveHover(null);
+
+      if (closeTimer) clearTimeout(closeTimer);
+      var delay = reduceMotion && reduceMotion.matches ? 0 : 180;
+      closeTimer = setTimeout(function () {
+        menu.open = false;
+        closeTimer = null;
+      }, delay);
+    }
+
     if (details instanceof HTMLDetailsElement && list instanceof HTMLElement) {
       if (langRoot instanceof HTMLElement) langRoot.setAttribute('data-ready', '');
 
+      var summaryEl = details.querySelector('summary');
+      if (summaryEl instanceof HTMLElement) {
+        summaryEl.addEventListener('click', function (event) {
+          if (!details.open) return;
+          event.preventDefault();
+          if (details.classList.contains('is-open')) {
+            closeMenu(details);
+          } else {
+            startOpen();
+          }
+        });
+      }
+
       details.addEventListener('toggle', function () {
         if (details.open) {
-          syncActive();
+          startOpen();
         } else {
+          details.classList.remove('is-open');
           hoveredLink = null;
           focusedLink = null;
           moveHover(null);
@@ -161,11 +203,6 @@ const entries = LOCALES.map((item) => ({
 
     function openMenu() {
       return document.querySelector('.lang-compact[open]');
-    }
-
-    function closeMenu(menu) {
-      if (!menu) return;
-      menu.open = false;
     }
 
     document.addEventListener('click', function (event) {
@@ -276,6 +313,22 @@ const entries = LOCALES.map((item) => ({
       inset 0 1px 0 var(--color-glass-hi),
       0 1px 3px var(--color-shadow-soft),
       0 10px 30px var(--color-shadow-soft);
+    transform-origin: top right;
+  }
+
+  .lang[data-ready] .lang-menu {
+    opacity: 0;
+    transform: scale(0.75);
+    pointer-events: none;
+    transition:
+      opacity 0.18s ease,
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .lang[data-ready] .lang-compact.is-open .lang-menu {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
   }
 
   .lang-track {
@@ -350,6 +403,11 @@ const entries = LOCALES.map((item) => ({
   @media (prefers-reduced-motion: reduce) {
     .lang-hover {
       transition: opacity 0.15s ease;
+    }
+
+    .lang[data-ready] .lang-menu {
+      transform: none;
+      transition: opacity 0.12s ease;
     }
   }
 
